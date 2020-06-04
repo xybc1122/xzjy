@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -52,11 +53,13 @@ public class Info implements Serializable {
     /**
      * 课程开始时间
      */
+    @JsonFormat(pattern="yyyy/MM/dd",locale="zh",timezone="GMT+8")
     private Date courseStartTime;
 
     /**
      * 课程结束时间
      */
+    @JsonFormat(pattern="yyyy/MM/dd",locale="zh",timezone="GMT+8")
     private Date courseEndTime;
 
     /**

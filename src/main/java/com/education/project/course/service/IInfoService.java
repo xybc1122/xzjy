@@ -4,9 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.base.HttpResult;
 import com.education.project.course.entity.Info;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.education.project.course.entity.InfoVo;
-
-import java.util.List;
 
 /**
  * <p>
@@ -19,6 +16,6 @@ import java.util.List;
 public interface IInfoService extends IService<Info> {
 
 
-    HttpResult<Page<Info>> getCourseList(String gradeId,Integer current,Integer offset);
+    HttpResult<Page<Info>> getCourseList(Integer gradeId,Integer current,Integer offset);
 
 }

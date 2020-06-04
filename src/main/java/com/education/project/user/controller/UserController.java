@@ -23,6 +23,6 @@ public class UserController {
     @PostMapping("wxLogin")
     public HttpResult<User> wxLogin(@Validated @RequestBody User user) {
 
-        return userServiceImpl.wxLoginService(user.getStudentId(), user.getPassword());
+        return userServiceImpl.wxLoginService(user.getUserName(), user.getPassword());
     }
 }

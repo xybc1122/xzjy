@@ -15,8 +15,10 @@ import javax.validation.constraints.NotBlank;
 public class User {
 
 
-    @NotBlank(message = "账号不能为空")
+
     private String studentId;
+    @NotBlank(message = "账号不能为空")
+    private String userName;
 
     @NotBlank(message = "密码不能为空")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
