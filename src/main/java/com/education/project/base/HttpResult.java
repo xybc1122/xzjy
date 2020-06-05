@@ -19,6 +19,11 @@ public class HttpResult<T> implements Serializable {
         return new HttpResult();
     }
 
+    //成功  入参  data
+    public static <T> HttpResult<T> success(T data) {
+        return new HttpResult(data);
+    }
+
     //成功  入参msg
     public static HttpResult success(String msg) {
         return new HttpResult(msg, true);
@@ -29,10 +34,6 @@ public class HttpResult<T> implements Serializable {
         return new HttpResult(data, msg);
     }
 
-    //成功  入参  data
-    public static <T> HttpResult<T> success(T data) {
-        return new HttpResult(data);
-    }
 
     //成功 入参枚举
     public static <T> HttpResult<T> success(BaseEnum baseEnum) {
