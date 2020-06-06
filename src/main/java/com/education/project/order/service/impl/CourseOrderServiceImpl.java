@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, CourseOrder> implements ICourseOrderService {
 
     @Override
-    public HttpResult<String> getOrderCount(HttpServletRequest request, String studentId) {
+    public HttpResult<String> getOrderCount(String studentId) {
         //已支付
         LambdaQueryWrapper<CourseOrder> payLambda = new LambdaQueryWrapper<>();
         payLambda.eq(CourseOrder::getStudentId, studentId).eq(CourseOrder::getIsPay, 1);
@@ -40,9 +40,10 @@ public class CourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, Cours
 }
 
     @Override
-    public HttpResult<Page<CourseOrder>> getOrderList(HttpServletRequest request, String studentId, int isPay, int current, int offset) {
+    public HttpResult<Page<CourseOrder>> getOrderList(String studentId, int isPay, int current, int offset) {
         LambdaQueryWrapper<CourseOrder> lambda = new LambdaQueryWrapper<>();
         lambda.eq(CourseOrder::getIsPay,isPay).eq(CourseOrder::getStudentId,studentId);
+        lambda.orderByDesc(CourseOrder::getCreateTime);
         Page<CourseOrder> page =page(new Page<>(current,offset),lambda);
         return HttpResult.success(page);
     }

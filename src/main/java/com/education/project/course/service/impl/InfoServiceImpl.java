@@ -52,7 +52,7 @@ public class InfoServiceImpl extends ServiceImpl<InfoMapper, Info> implements II
         QueryWrapper<Info> voQueryWrapper = new QueryWrapper<>();
 
         voQueryWrapper.in("course_id",courseIds);
-
+        voQueryWrapper.orderByDesc("course_start_time");
         Page<Info> page = page(new Page<>(current, offset), voQueryWrapper);
 
         return HttpResult.success(page);
