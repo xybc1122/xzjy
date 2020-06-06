@@ -54,5 +54,10 @@ public class CourseOrder implements Serializable {
      */
     private String studentId;
 
+    /**
+     * 表头说明
+     */
+    private String title;
+
 
 }

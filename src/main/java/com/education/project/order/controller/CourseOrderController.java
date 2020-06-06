@@ -36,7 +36,7 @@ public class CourseOrderController {
     @GetMapping("payCount")
     public HttpResult<String> payCount(HttpServletRequest request) {
         String studentId = RequestUtils.getStudentId(request);
-        return courseOrderService.getOrderCount(request, studentId);
+        return courseOrderService.getOrderCount(studentId);
     }
 
 
@@ -46,7 +46,7 @@ public class CourseOrderController {
                                                    @RequestParam("isPay") int isPay,
                                                    HttpServletRequest request) {
         String studentId = RequestUtils.getStudentId(request);
-        return courseOrderService.getOrderList(request, studentId, isPay, current, offset);
+        return courseOrderService.getOrderList(studentId, isPay, current, offset);
     }
 
 }

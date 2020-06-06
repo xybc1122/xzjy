@@ -22,10 +22,10 @@ public interface ICourseOrderService extends IService<CourseOrder> {
      *
      * @return HttpResult
      */
-    HttpResult<String> getOrderCount(HttpServletRequest request, String studentId);
+    HttpResult<String> getOrderCount(String studentId);
 
 
-    HttpResult<Page<CourseOrder>> getOrderList(HttpServletRequest request, String studentId, int isPay, int current, int offset);
+    HttpResult<Page<CourseOrder>> getOrderList(String studentId, int isPay, int current, int offset);
 
 
 }
