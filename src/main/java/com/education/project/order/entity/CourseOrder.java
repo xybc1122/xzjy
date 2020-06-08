@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author jobob
@@ -31,7 +31,7 @@ public class CourseOrder implements Serializable {
     /**
      * 创建时间
      */
-    @JsonFormat(pattern="yyyy/MM/dd",locale="zh",timezone="GMT+8")
+    @JsonFormat(pattern = "yyyy/MM/dd", locale = "zh", timezone = "GMT+8")
     private Date createTime;
 
     /**
@@ -58,6 +58,11 @@ public class CourseOrder implements Serializable {
      * 表头说明
      */
     private String title;
+
+    /**
+     * 微信小程序openId
+     */
+    private String openId;
 
 
 }
