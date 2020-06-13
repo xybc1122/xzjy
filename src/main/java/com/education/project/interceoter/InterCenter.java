@@ -2,6 +2,7 @@ package com.education.project.interceoter;
 
 import com.education.project.base.HttpResult;
 import com.education.project.user.entity.User;
+import com.education.project.utils.CookieUtil;
 import com.education.project.utils.JwtUtils;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
@@ -20,15 +21,23 @@ public class InterCenter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //校验token
-        String token = request.getHeader("token");
+        System.out.println(request.getRequestURI());
+        String token = CookieUtil.getValue(request, "token");
         if (token == null) {
-            //尝试去参数里面获取看看
-            token = request.getParameter("token");
+            //校验token
+            token = request.getHeader("token");
+            if (token == null) {
+                //尝试去参数里面获取看看
+                token = request.getParameter("token");
+            }
         }
         if (StringUtils.isNotBlank(token)) {
             JwtUtils.setJwtUser(request, token);
             return true;
+        }
+        if (request.getRequestURI().equals("/admin")) {
+            response.sendRedirect("/login");
+            return false;
         }
         sendJsonMessage(response, HttpResult.fail("请先登录"));
         return false;

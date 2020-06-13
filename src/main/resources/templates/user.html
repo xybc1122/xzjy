@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理</title>
+    <link href="vue/index.css" rel="stylesheet" type="text/css"/>
+    <script src="vue/vue.js"></script>
+    <script src="vue/axios.min.js"></script>
+    <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/md5.js"></script>
+</head>
+<body>
+<div id="user">
+    <!-- 卡片视图区域 -->
+    <el-card>
+        <!-- 搜索与添加区域 -->
+        <el-row :gutter="20">
+            <el-col :span="8">
+                <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="getUserList">
+                    <el-button slot="append" icon="el-icon-search" @click="getUserList"></el-button>
+                </el-input>
+            </el-col>
+            <el-col :span="4">
+                <el-button type="primary" @click="addDialogVisible = true">添加学生</el-button>
+            </el-col>
+        </el-row>
+
+        <!-- 用户列表区域 -->
+        <el-table :data="userlist" border stripe>
+            <el-table-column type="index"></el-table-column>
+            <el-table-column label="姓名" prop="username"></el-table-column>
+            <el-table-column label="年级" prop="email"></el-table-column>
+            <el-table-column label="操作" width="180px">
+                <template slot-scope="scope">
+                    <!-- 修改按钮 -->
+                    <el-button type="primary" icon="el-icon-edit" size="mini"
+                               @click="showEditDialog(scope.row.id)"></el-button>
+                    <!-- 删除按钮 -->
+                    <el-button type="danger" icon="el-icon-delete" size="mini"
+                               @click="removeUserById(scope.row.id)"></el-button>
+                    <!-- 分配班级按钮 -->
+                    <el-tooltip effect="dark" content="分配班级" placement="top" :enterable="false">
+                        <el-button type="warning" icon="el-icon-setting" size="mini"
+                                   @click="setRole(scope.row)"></el-button>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <!-- 分页区域 -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                       :current-page="queryInfo.pagenum" :page-sizes="[1, 2, 5, 10]" :page-size="queryInfo.pagesize"
+                       layout="total, sizes, prev, pager, next, jumper" :total="total">
+        </el-pagination>
+    </el-card>
+
+    <!-- 添加用户的对话框 -->
+    <el-dialog title="添加学生" :visible.sync="addDialogVisible" width="50%">
+        <!-- 内容主体区域 -->
+        <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="70px">
+            <el-form-item label="用户名" prop="username">
+                <el-input v-model="addForm.username"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="addForm.password"></el-input>
+            </el-form-item>
+            <el-form-item label="手机" prop="mobile">
+                <el-input v-model="addForm.mobile"></el-input>
+            </el-form-item>
+            <el-form-item label="姓名" prop="name">
+                <el-input v-model="addForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="年级" prop="grade">
+                <el-select v-model="addForm.grade" placeholder="选择年级" @focus="addUserFocus">
+                    <el-option
+                            v-for="item in grades"
+                            :key="item.id"
+                            :label="item.gradeName"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <!-- 底部区域 -->
+        <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="resetAddUser">重 置</el-button>
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 修改用户的对话框 -->
+    <el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">
+        <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">
+            <el-form-item label="用户名">
+                <el-input v-model="editForm.username" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+                <el-input v-model="editForm.email"></el-input>
+            </el-form-item>
+            <el-form-item label="手机" prop="mobile">
+                <el-input v-model="editForm.mobile"></el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editUserInfo">确 定</el-button>
+      </span>
+    </el-dialog>
+
+</div>
+</body>
+<script>
+    // 验证手机号的规则
+    const checkMobile = (rule, value, cb) => {
+        // 验证手机号的正则表达式
+        const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
+
+        if (regMobile.test(value)) {
+            return cb()
+        }
+
+        cb(new Error('请输入合法的手机号'))
+    }
+    new Vue({
+        el: '#user',
+        data: {
+            grades: [],//下拉款年级选择
+            // 获取用户列表的参数对象
+            queryInfo: {
+                query: '',
+                // 当前的页数
+                pagenum: 1,
+                // 当前每页显示多少条数据
+                pagesize: 10
+            },
+            userlist: [],
+            total: 0,
+            // 控制添加用户对话框的显示与隐藏
+            addDialogVisible: false,
+            // 添加用户的表单数据
+            addForm: {
+                username: '',
+                password: '',
+                mobile: '',
+                name: '',
+                grade: '',//年级
+            },
+            // 查询到的用户信息对象
+            editForm: {},
+            // 修改表单的验证规则对象
+            editFormRules: {
+                mobile: [
+                    {required: true, message: '请输入用户手机', trigger: 'blur'},
+                    {validator: checkMobile, trigger: 'blur'}
+                ]
+            },
+            // 控制修改用户对话框的显示与隐藏
+            editDialogVisible: false,
+            // 控制分配角色对话框的显示与隐藏
+            setRoleDialogVisible: false,
+            // 添加表单的验证规则对象
+            addFormRules: {
+                username: [
+                    {required: true, message: '请输入用户名', trigger: 'blur'},
+                    {
+                        min: 5,
+                        max: 10,
+                        message: '用户名的长度在5~10个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                password: [
+                    {required: true, message: '请输入密码', trigger: 'blur'},
+                    {
+                        min: 6,
+                        max: 15,
+                        message: '密码的长度在6~15个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                name: [
+                    {required: true, message: '请输入学生名称', trigger: 'blur'},
+                    {
+                        min: 2,
+                        max: 8,
+                        message: '学生名称在3~8个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                mobile: [
+                    {required: true, message: '请输入手机号', trigger: 'blur'},
+                    {validator: checkMobile, trigger: 'blur'}
+                ],
+                grade: [
+                    {required: true, message: '请选择年级', trigger: 'blur'},
+                ]
+            }
+        },
+        created() {
+            this.getUserList()
+        },
+        methods: {
+            //获得年级列表
+            gradeList() {
+                axios.get('/v1/api/grade/gradeList').then(res => {
+                    const {data: obj} = res
+                    if (obj.code === 200) {
+                        this.grades = obj.data
+                    }
+
+                }).catch(err => {
+                })
+            },
+            //重置
+            resetAddUser() {
+                this.$refs.addFormRef.resetFields()
+            },
+            addUserFocus() {
+                this.gradeList()
+            },
+            addUser() {
+                this.$refs.addFormRef.validate(valid => {
+                    if (!valid) return
+                    let userName = this.addForm.username;
+                    let base64 = b64_md5(this.addForm.password);
+                    const pwd = hex_md5(base64 + userName)
+                    //拼接对象
+                    const formUser=this.addForm
+                    const addUser={userName:userName,password:pwd,
+                    name:formUser.name,gradeId:formUser.grade,phone:formUser.mobile}
+                    axios.post('/v1/api/admin/addUser',addUser).then(res=>{
+                            console.log(res)
+                        }).catch(err=>{
+
+
+                        })
+                })
+            },
+            editUserInfo() {
+                this.$refs.editFormRef.validate(async valid => {
+                    if (!valid) return
+                })
+            },
+            // 监听修改用户对话框的关闭事件
+            editDialogClosed() {
+                this.$refs.editFormRef.resetFields()
+            },
+            getUserList() {
+
+            },
+            // 监听 pagesize 改变的事件
+            handleSizeChange(newSize) {
+                // console.log(newSize)
+                this.queryInfo.pagesize = newSize
+                this.getUserList()
+            },
+            // 监听 页码值 改变的事件
+            handleCurrentChange(newPage) {
+                console.log(newPage)
+                this.queryInfo.pagenum = newPage
+                this.getUserList()
+            }
+        }
+
+
+    })
+
+
+</script>
+</html>

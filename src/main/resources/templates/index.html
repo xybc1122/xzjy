@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页面</title>
+    <link href="vue/index.css" rel="stylesheet" type="text/css"/>
+    <link href="css/index.css" rel="stylesheet"/>
+    <script src="vue/vue.js"></script>
+    <script src="vue/axios.min.js"></script>
+    <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
+
+</head>
+<body>
+<el-container id="index" class="home-container">
+    <!-- 头部区域 -->
+    <el-header>
+        <div>
+            <span>学之教育后台管理系统</span>
+        </div>
+        <el-button type="info" @click="logout">退出</el-button>
+    </el-header>
+    <!-- 页面主体区域 -->
+    <el-container>
+        <!-- 侧边栏 -->
+        <el-aside :width="isCollapse ? '64px' : '200px'">
+            <div class="toggle-button" @click="toggleCollapse">|||</div>
+            <!-- 侧边栏菜单区域 -->
+            <el-menu background-color="#333744" text-color="#fff"
+                     @select="handleSelect"
+                     active-text-color="#409EFF"
+                     unique-opened :collapse="isCollapse"
+                     :collapse-transition="false"
+                     :default-active="activePath">
+                <!-- 一级菜单 -->
+                <el-menu-item :index="'/' + item.path"  v-for="item in menulist" :key="item.id">
+                    <!-- 一级菜单的模板区域 -->
+                    <template slot="title">
+                        <!-- 文本 -->
+                        <span>{{item.authName}}</span>
+                    </template>
+                </el-menu-item>
+            </el-menu>
+
+
+        </el-aside>
+        <!-- 右侧内容主体 -->
+        <el-main>
+                <iframe id="iframe-page-content" frameBorder="0" :src="path" style="width:100%"></iframe>
+        </el-main>
+    </el-container>
+</el-container>
+</body>
+<script>
+    new Vue({
+        el:"#index",
+        data:{
+            // 左侧菜单数据
+            menulist: [],
+            // 是否折叠
+            isCollapse: false,
+            activePath: '',
+            path:''
+        },
+        created() {
+            const height=document.documentElement.clientHeight;
+            document.getElementById('iframe-page-content').style.height=height+'px';
+            this.menulist=[
+                {
+                "id":1,
+                    "authName":"学生管理",
+                    "path":"user"
+                },
+
+                {
+                    "id":2,
+                    "authName":"订单管理",
+                    "path":"order"
+                }
+            ]
+            this.activePath = window.sessionStorage.getItem('activePath')
+        },
+        methods: {
+            // 点击按钮，切换菜单的折叠与展开
+            toggleCollapse() {
+                this.isCollapse = !this.isCollapse
+            },
+            logout() {
+                console.log("退出登录")
+
+            },
+            // 保存链接的激活状态
+            saveNavState(activePath) {
+                window.sessionStorage.setItem('activePath', activePath)
+                this.activePath = activePath
+            },
+            handleSelect(key, keyPath) {
+                console.log(key);
+                console.log(keyPath)
+                this.path=keyPath
+            }
+
+
+        }
+
+
+    })
+
+
+
+</script>
+</html>
