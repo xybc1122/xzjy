@@ -1,22 +1,37 @@
 package com.education.project.admin.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.education.project.admin.service.AdminUserService;
 import com.education.project.base.HttpResult;
+import com.education.project.grade.entity.Grade;
+import com.education.project.grade.service.IGradeService;
 import com.education.project.user.entity.User;
 import com.education.project.user.mapper.UserMapper;
 import com.education.project.utils.CookieUtil;
 import com.education.project.utils.JwtUtils;
 import com.education.project.utils.UUidUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implements AdminUserService {
+    private Lock lock = new ReentrantLock();
+    private final IGradeService gradeService;
 
+    @Autowired
+    public AdminUserServiceImpl(IGradeService gradeService) {
+        this.gradeService = gradeService;
+    }
 
     @Override
     public HttpResult<User> webLoginService(String userName, String password, HttpServletResponse response) {
@@ -38,10 +53,33 @@ public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implemen
 
     @Override
     public HttpResult webAddUserService(User user) {
-        user.setStudentId(UUidUtil.getUUid());
-        if (!save(user)) {
-            return HttpResult.fail("注册失败");
+        try {
+            lock.lock();
+            QueryWrapper<User> queryUser = new QueryWrapper<>();
+            queryUser.eq("user_name",user.getUserName());
+            if (getOne(queryUser) != null) {
+                return HttpResult.fail("账号已被注册");
+            }
+            user.setStudentId(UUidUtil.getUUid());
+            QueryWrapper<Grade> queryGrade = new QueryWrapper<>();
+            queryGrade.eq("id", user.getGradeId());
+            Grade grade = gradeService.getOne(queryGrade);
+            user.setGradeName(grade.getGradeName());
+            if (!save(user)) {
+                return HttpResult.fail("注册失败");
+            }
+            return HttpResult.success("注册成功");
+        } finally {
+            lock.unlock();
         }
-        return HttpResult.success("注册成功");
+    }
+
+    @Override
+    public HttpResult<Page<User>> webGetUserListService(User user) {
+        QueryWrapper<User> query = new QueryWrapper<>();
+        query.eq("tenant", 0).
+              eq(StringUtils.isNotEmpty(user.getName()),"name", user.getName());
+        Page<User> page = page(new Page<>(user.getCurrent(), user.getOffset()), query);
+        return HttpResult.success(page);
     }
 }

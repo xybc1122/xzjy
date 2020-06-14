@@ -3,6 +3,7 @@ package com.education.project.exception;
 
 import com.education.project.base.HttpResult;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 /**

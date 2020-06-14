@@ -3,6 +3,7 @@ package com.education.project.user.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.education.project.base.BaseEntity;
 import com.education.project.validation.ValidationGroupsUser;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("user")
-public class User {
+public class User extends BaseEntity {
 
 
     private String studentId;
@@ -36,6 +37,10 @@ public class User {
      */
     @NotNull(groups = {ValidationGroupsUser.Register.class}, message = "班级不能为空")
     private Integer gradeId;
+    /**
+     * 班级名称
+     */
+    private String gradeName;
     /**
      * 令牌
      */

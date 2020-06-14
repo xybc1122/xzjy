@@ -1,8 +1,10 @@
 package com.education.project.admin.user;
 
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.admin.service.AdminUserService;
 import com.education.project.base.HttpResult;
+import com.education.project.order.entity.CourseOrder;
 import com.education.project.user.entity.User;
 import com.education.project.validation.ValidationGroupsUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,14 @@ public class AdminUserController {
     public HttpResult addUser(@Validated(ValidationGroupsUser.Register.class) @RequestBody User user) {
 
         return userService.webAddUserService(user);
+
+    }
+
+    @PostMapping("/v1/api/admin/getUserList")
+    @ResponseBody
+    public HttpResult<Page<User>> getUserList(@RequestBody User user) {
+
+        return userService.webGetUserListService(user);
 
     }
 }
