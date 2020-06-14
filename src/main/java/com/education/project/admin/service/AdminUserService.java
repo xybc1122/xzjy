@@ -24,6 +24,19 @@ public interface AdminUserService extends IService<User> {
      */
     HttpResult webAddUserService(User user);
 
+    /**
+     * 修改学生
+     * @param user
+     * @return
+     */
+    HttpResult webEditUserService(User user);
+
+    /**
+     * 删除学生
+     * @param user
+     * @return
+     */
+    HttpResult webRemoveUserService(String studentId);
 
     /**
      * 添加学生

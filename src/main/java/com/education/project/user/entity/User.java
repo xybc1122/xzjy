@@ -2,6 +2,7 @@ package com.education.project.user.entity;
 
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.education.project.base.BaseEntity;
 import com.education.project.validation.ValidationGroupsUser;
@@ -17,8 +18,9 @@ import javax.validation.constraints.NotNull;
 @TableName("user")
 public class User extends BaseEntity {
 
-
+    @TableId
     private String studentId;
+
     @NotBlank(groups = {ValidationGroupsUser.Register.class}, message = "账号不能为空")
     @NotBlank(message = "账号不能为空")
     private String userName;

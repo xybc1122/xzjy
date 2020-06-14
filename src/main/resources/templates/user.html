@@ -38,7 +38,7 @@
                                @click="showEditDialog(scope.row)"></el-button>
                     <!-- 删除按钮 -->
                     <el-button type="danger" icon="el-icon-delete" size="mini"
-                               @click="removeUserById(scope.row.id)"></el-button>
+                               @click="removeUserById(scope.row.studentId)"></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -184,7 +184,8 @@
             //修改用户信息对象
             editForm: {
                 gradeId: '',
-                name: ''
+                name: '',
+                studentId:''
             },
             // 修改表单的验证规则对象
             editFormRules: {
@@ -208,6 +209,42 @@
             this.getUserList()
         },
         methods: {
+            removeUserById(student_id) {
+                // 弹框询问用户是否删除数据
+               this.$confirm(
+                    '此操作将永久删除该用户, 是否继续?',
+                    '提示',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }
+                ).then(()=>{
+                    axios.get('/v1/api/admin/removeUser',{
+                        params: {
+                            studentId: student_id
+                        }
+                   }).then(res=>{
+                        const {data: obj} = res
+                        if (obj.code === 200) {
+                            this.$message({
+                                message: obj.message,
+                                type: 'success'
+                            });
+                            this.getUserList()
+                            return
+                        }
+                        this.$message.error(obj.message);
+
+                    }).catch(err=>{
+
+
+                    })
+
+
+                }).catch(err => err)
+
+            },
             //获得年级列表
             gradeList() {
                 axios.get('/v1/api/grade/gradeList').then(res => {
@@ -238,7 +275,6 @@
                         userName: userName, password: pwd,
                         name: formUser.name, gradeId: formUser.gradeId, phone: formUser.mobile
                     }
-                    console.log(addUser)
                     axios.post('/v1/api/admin/addUser', addUser).then(res => {
                         const {data: obj} = res
                         if (obj.code === 200) {
@@ -260,8 +296,8 @@
                 })
             },
             showEditDialog(row) {
-                console.log(row)
                 this.gradeList()
+                this.editForm.studentId=row.studentId
                 this.editForm.name = row.name
                 this.editForm.gradeId = row.gradeId
                 this.editDialogVisible = true
@@ -269,6 +305,24 @@
             editUserInfo() {
                 this.$refs.editFormRef.validate(async valid => {
                     if (!valid) return
+                    axios.post('/v1/api/admin/editUser', this.editForm).then(res => {
+                        const {data: obj} = res
+                        if (obj.code === 200) {
+                            this.$message({
+                                message: obj.message,
+                                type: 'success'
+                            });
+                            this.editDialogVisible = false
+                            this.$refs.editFormRef.resetFields()
+                            this.getUserList()
+                            return
+                        }
+                        this.$message.error(obj.message);
+
+                    }).catch(err => {
+
+
+                    })
                     console.log(this.editForm)
                 })
             },
@@ -283,13 +337,8 @@
                         this.userList = obj.data.records
                         this.total=obj.data.total
                     }
-
                 }).catch(err => {
-
-
                 })
-
-
             },
             // 监听 pagesize 改变的事件
             handleSizeChange(newSize) {

@@ -56,14 +56,12 @@ public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implemen
         try {
             lock.lock();
             QueryWrapper<User> queryUser = new QueryWrapper<>();
-            queryUser.eq("user_name",user.getUserName());
+            queryUser.eq("user_name", user.getUserName());
             if (getOne(queryUser) != null) {
                 return HttpResult.fail("账号已被注册");
             }
             user.setStudentId(UUidUtil.getUUid());
-            QueryWrapper<Grade> queryGrade = new QueryWrapper<>();
-            queryGrade.eq("id", user.getGradeId());
-            Grade grade = gradeService.getOne(queryGrade);
+            Grade grade = getGrade(user.getGradeId());
             user.setGradeName(grade.getGradeName());
             if (!save(user)) {
                 return HttpResult.fail("注册失败");
@@ -75,11 +73,35 @@ public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implemen
     }
 
     @Override
+    public HttpResult webEditUserService(User user) {
+        Grade grade = getGrade(user.getGradeId());
+        user.setGradeName(grade.getGradeName());
+        if (!updateById(user)) {
+            return HttpResult.fail("修改失败");
+        }
+        return HttpResult.success("修改成功");
+    }
+
+    @Override
+    public HttpResult webRemoveUserService(String studentId) {
+        if (!removeById(studentId)) {
+            return HttpResult.fail("删除失败");
+        }
+        return HttpResult.success("删除成功");
+    }
+
+    @Override
     public HttpResult<Page<User>> webGetUserListService(User user) {
         QueryWrapper<User> query = new QueryWrapper<>();
         query.eq("tenant", 0).
-              eq(StringUtils.isNotEmpty(user.getName()),"name", user.getName());
+                eq(StringUtils.isNotEmpty(user.getName()), "name", user.getName());
         Page<User> page = page(new Page<>(user.getCurrent(), user.getOffset()), query);
         return HttpResult.success(page);
+    }
+
+    private Grade getGrade(Integer gradeId) {
+        QueryWrapper<Grade> queryGrade = new QueryWrapper<>();
+        queryGrade.eq("id", gradeId);
+        return gradeService.getOne(queryGrade);
     }
 }

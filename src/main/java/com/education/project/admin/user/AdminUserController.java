@@ -10,10 +10,7 @@ import com.education.project.validation.ValidationGroupsUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AdminUserController {
@@ -45,5 +42,18 @@ public class AdminUserController {
 
         return userService.webGetUserListService(user);
 
+    }
+
+    @PostMapping("/v1/api/admin/editUser")
+    @ResponseBody
+    public HttpResult editUser(@RequestBody User user) {
+        return userService.webEditUserService(user);
+    }
+
+
+    @GetMapping("/v1/api/admin/removeUser")
+    @ResponseBody
+    public HttpResult removeUser(@RequestParam("studentId") String studentId) {
+        return userService.webRemoveUserService(studentId);
     }
 }
