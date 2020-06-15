@@ -21,7 +21,11 @@ public class InterCenter implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        System.out.println(request.getRequestURI());
+        if (request.getRequestURI().equals("/v1/api/admin/logout")) {
+            CookieUtil.remove(request,response,"token");
+            response.sendRedirect("/login");
+            return false;
+        }
         String token = CookieUtil.getValue(request, "token");
         if (token == null) {
             //校验token

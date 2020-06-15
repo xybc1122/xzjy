@@ -39,7 +39,7 @@ public interface AdminUserService extends IService<User> {
     HttpResult webRemoveUserService(String studentId);
 
     /**
-     * 添加学生
+     * 学生列表
      * @param user
      * @return
      */

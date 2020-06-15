@@ -3,8 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <title>课程配置</title>
+    <link href="vue/index.css" rel="stylesheet" type="text/css"/>
+    <link href="css/course.css" rel="stylesheet"/>
+    <script src="vue/vue.js"></script>
+    <script src="vue/axios.min.js"></script>
+    <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-课程配置
+<!-- 卡片视图区域 -->
+<div id="course">
+
+    <el-card>
+        <!-- 搜索与添加区域 -->
+        <el-row :gutter="20">
+            <el-col :span="8">
+                <el-input placeholder="请输入班级名" v-model="queryInfo.name" clearable @clear="getCourseList">
+                    <el-button slot="append" icon="el-icon-search" @click="getCourseList"></el-button>
+                </el-input>
+            </el-col>
+            <el-col :span="4">
+                <el-button type="primary" @click="addCourseDialogVisible = true">添加班级</el-button>
+            </el-col>
+        </el-row>
+
+        <!-- 用户列表区域 -->
+        <el-table :data="courseList" border stripe>
+            <el-table-column fixed label="课程标题" prop="courseTitle" width="200px"></el-table-column>
+            <el-table-column label="课程图片" prop="courseUrl" width="200px">
+                <!--加入下面的内容,scope.row代表这一行,img是显示这一行的哪个字段,我的是img,你的自己看下-->
+                <template slot-scope="scope">
+                    <img :src="scope.row.courseUrl" alt="" style="width: 180px;height: 100px">
+                </template>
+            </el-table-column>
+            <el-table-column label="课程描述" prop="courseDesc" width="150px"></el-table-column>
+            <el-table-column label="课程价格" prop="coursePrice" width="150px"></el-table-column>
+            <el-table-column label="课程开始时间" prop="courseStartTime" width="150px"></el-table-column>
+            <el-table-column label="课程结束时间" prop="courseEndTime" width="150px"></el-table-column>
+            <el-table-column label="课程校区" prop="courseCampus" width="150px"></el-table-column>
+            <el-table-column label="课程老师" prop="courseTeacher" width="150px"></el-table-column>
+            <el-table-column label="班级是否已满" prop="courseFull" width="150px">
+                <template slot-scope="scope">
+                    <span :style="scope.row.courseFull==1? 'color:red':'color:#409EFF'">
+                    {{scope.row.courseFull==1? '已满' : '未满'}}
+                    </span>
+                </template>
+            </el-table-column>
+            <el-table-column label="课程库存数量" prop="courseStock" width="150px"></el-table-column>
+            <el-table-column fixed="right" label="操作" width="200px">
+                <template slot-scope="scope">
+                    <!-- 修改按钮 -->
+                    <el-button type="primary" icon="el-icon-edit" size="mini"
+                               @click="showEditDialog(scope.row)"></el-button>
+                    <!-- 删除按钮 -->
+                    <el-button type="danger" icon="el-icon-delete" size="mini"
+                               @click="removeUserById(scope.row)"></el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <!-- 分页区域 -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                       :current-page="queryInfo.current" :page-sizes="[1, 2, 5, 10]" :page-size="queryInfo.offset"
+                       layout="total, sizes, prev, pager, next, jumper" :total="total">
+        </el-pagination>
+    </el-card>
+    <!-- 添加用户的对话框 -->
+    <el-dialog title="添加班级" :visible.sync="addCourseDialogVisible" width="50%">
+        <!-- 内容主体区域 -->
+        <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
+            <el-form-item label="班级标题" prop="courseTitle">
+                <el-input v-model="addForm.courseTitle"></el-input>
+            </el-form-item>
+            <el-form-item label="图片">
+                <el-upload
+                        action=""
+                        :limit="1"
+                        list-type="picture-card"
+                        :on-preview="handlePictureCardPreview"
+                        :on-remove="handleRemove"
+                        :before-upload="beforeAvatarUpload"
+                        :on-exceed="handleExceed"
+                        :auto-upload="false">
+                    <i class="el-icon-plus"></i>
+                    <div slot="tip" class="el-upload_tip">只能上传.jpg图片,且不超过1M</div>
+                </el-upload>
+            </el-form-item>
+            <el-form-item label="描述" prop="courseDesc">
+                <el-input v-model="addForm.courseDesc"
+                          type="textarea"
+                          placeholder="请输入内容"
+                          v-model="textarea"
+                          maxlength="256"
+                          show-word-limit
+                >
+                </el-input>
+            </el-form-item>
+            <el-form-item label="价格" prop="coursePrice">
+                <el-input v-model="addForm.coursePrice"></el-input>
+            </el-form-item>
+            <el-form-item label="开始时间" prop="courseStartTime">
+                <el-date-picker
+                        v-model="addForm.courseStartTime"
+                        type="date"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="结束时间" prop="courseEndTime">
+                <el-date-picker
+                        v-model="addForm.courseEndTime"
+                        type="date"
+                        placeholder="选择日期">
+                </el-date-picker>
+            </el-form-item>
+            <el-form-item label="校区" prop="courseCampus">
+                <el-input v-model="addForm.courseCampus"></el-input>
+            </el-form-item>
+            <el-form-item label="老师" prop="courseTeacher">
+                <el-input v-model="addForm.courseTeacher"></el-input>
+            </el-form-item>
+            <el-form-item label="班级人数" prop="courseStock">
+                <el-input v-model="addForm.courseStock"  oninput="value=value.replace(/[^\d]/g,'')"></el-input>
+            </el-form-item>
+        </el-form>
+        <!-- 底部区域 -->
+        <span slot="footer" class="dialog-footer">
+<el-button type="primary" @click="resetAddCourse">重 置</el-button>
+<el-button @click="addCourseDialogVisible = false">取 消</el-button>
+<el-button type="primary" @click="addCourse">确 定</el-button>
+</span>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogVisible">
+        <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
+</div>
+
+
+<!--&lt;!&ndash; 修改用户的对话框 &ndash;&gt;-->
+<!--<el-dialog title="修改用户" :visible.sync="editDialogVisible" width="50%" @close="editDialogClosed">-->
+<!--<el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="70px">-->
+<!--<el-form-item label="姓名" prop="name">-->
+<!--<el-input v-model="editForm.name"></el-input>-->
+<!--</el-form-item>-->
+<!--<el-form-item label="年级" prop="gradeId">-->
+<!--<el-select v-model="editForm.gradeId" placeholder="选择年级">-->
+<!--<el-option-->
+<!--v-for="item in grades"-->
+<!--:key="item.id"-->
+<!--:label="item.gradeName"-->
+<!--:value="item.id">-->
+<!--</el-option>-->
+<!--</el-select>-->
+<!--</el-form-item>-->
+<!--</el-form>-->
+<!--<el-button @click="editDialogVisible = false">取 消</el-button>-->
+<!--<el-button type="primary" @click="editUserInfo">确 定</el-button>-->
+<!--</span>-->
+<!--</el-dialog>-->
 </body>
+<script>
+    const checkPrice = (rule, value, cb) => {
+        // 验证金额
+        const regPrice = /((^[1-9]\d*)|^0)(\.\d{1,2}){0,1}$/
+
+        if (regPrice.test(value)) {
+            return cb()
+        }
+        cb(new Error('请输入合法的金额'))
+    }
+    new Vue({
+        el: '#course',
+        data: {
+            queryInfo: {
+                name: '',
+                // 当前的页数
+                current: 1,
+                // 当前每页显示多少条数据
+                offset: 10
+            },
+            courseList: [],
+            total: 0,
+            dialogImageUrl: '',
+            dialogVisible: false,
+            addCourseDialogVisible: false,//添加班级
+            addForm: {
+                courseTitle: '',
+                courseDesc: '',
+                courseStartTime: '',
+                courseEndTime: '',
+                courseCampus: '',
+                courseTeacher: '',
+                courseStock: 0,
+                coursePrice: 0
+            },
+            addFormRules: {
+                courseTitle: [
+                    {required: true, message: '请输入班级标题', trigger: 'blur'},
+                    {
+                        min: 5,
+                        max: 30,
+                        message: '班级标题的长度在5~30个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                courseDesc: [
+                    {required: true, message: '请输入描述信息', trigger: 'blur'},
+                    {
+                        min: 5,
+                        max: 256,
+                        message: '班级标题的长度在5~256个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                courseTeacher: [
+                    {required: true, message: '请输入老师名称', trigger: 'blur'},
+                    {
+                        min: 2,
+                        max: 10,
+                        message: '班级标题的长度在2~10个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                courseCampus: [
+                    {required: true, message: '请输入校区名称', trigger: 'blur'},
+                    {
+                        min: 5,
+                        max: 30,
+                        message: '班级标题的长度在5~30个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                courseStartTime: [
+                    {required: true, message: '请选择开始时间', trigger: 'blur'},
+                ],
+                courseEndTime: [
+                    {required: true, message: '请选择结束时间', trigger: 'blur'},
+                ],
+                courseStock: [
+                    {
+                        min: 1,
+                        max: 9,
+                        message: '班级人数不能为 0',
+                        trigger: 'blur'
+                    }
+                ],
+                coursePrice: [
+                    {
+                        min: 1,
+                        message: '金额不能为 0',
+                        trigger: 'blur'
+                    },
+                    {validator: checkPrice, trigger: 'blur'}
+                ]
+
+            }
+
+        },
+        created() {
+            this.getCourseList()
+        },
+        methods: {
+            resetAddCourse() {
+                this.$refs.addFormRef.resetFields()
+            },
+            addCourse() {
+                this.$refs.addFormRef.validate(valid => {
+                    if (!valid) return
+                    console.log(this.addForm)
+                })
+            },
+            getCourseList() {
+                axios.post('/v1/api/admin/getCourseList', this.queryInfo).then(res => {
+                    const {data: obj} = res
+                    if (obj.code === 200) {
+                        console.log(obj)
+                        this.courseList = obj.data.records
+                        this.total = obj.data.total
+                    }
+                }).catch(err => {
+                })
+            },
+            handleExceed() {
+                this.$message.error('只能上传一张图片');
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePictureCardPreview(file) {
+                this.dialogImageUrl = file.url;
+                this.dialogVisible = true;
+            },
+            handleAvatarSuccess(res, file) {
+                this.imageUrl = URL.createObjectURL(file.raw);
+            },
+            beforeAvatarUpload(file) {
+                const isJPG = file.type === 'image/jpeg';
+                const isLt2M = file.size / 1024 / 1024 < 1;
+
+                if (!isJPG) {
+                    this.$message.error('上传头像图片只能是 JPG 格式!');
+                }
+                if (!isLt2M) {
+                    this.$message.error('上传头像图片大小不能超过 1MB!');
+                }
+                return isJPG && isLt2M;
+            },
+            // 监听 pagesize 改变的事件
+            handleSizeChange(newSize) {
+                this.queryInfo.offset = newSize
+                this.getCourseList()
+            },
+            // 监听 页码值 改变的事件
+            handleCurrentChange(newPage) {
+                this.queryInfo.current = newPage
+                this.getCourseList()
+            }
+        }
+
+
+    })
+
+
+</script>
 </html>

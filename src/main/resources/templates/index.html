@@ -32,7 +32,7 @@
                      :collapse-transition="false"
                      :default-active="activePath">
                 <!-- 一级菜单 -->
-                <el-menu-item :index="'/' + item.path"  v-for="item in menulist" :key="item.id">
+                <el-menu-item :index="'/' + item.path" v-for="item in menulist" :key="item.id">
                     <!-- 一级菜单的模板区域 -->
                     <template slot="title">
                         <!-- 文本 -->
@@ -45,44 +45,43 @@
         </el-aside>
         <!-- 右侧内容主体 -->
         <el-main>
-                <iframe id="iframe-page-content" frameBorder="0" :src="path" style="width:100%"></iframe>
+            <iframe id="iframe-page-content" frameBorder="0" :src="path" style="width:100%"></iframe>
         </el-main>
     </el-container>
 </el-container>
 </body>
 <script>
     new Vue({
-        el:"#index",
-        data:{
+        el: "#index",
+        data: {
             // 左侧菜单数据
             menulist: [],
             // 是否折叠
             isCollapse: false,
-            activePath: '',
-            path:''
+            activePath: '/user',
+            path: 'user'
         },
         created() {
-            const height=document.documentElement.clientHeight;
-            document.getElementById('iframe-page-content').style.height=height+'px';
-            this.menulist=[
+            const height = document.documentElement.clientHeight;
+            document.getElementById('iframe-page-content').style.height = height + 'px';
+            this.menulist = [
                 {
-                "id":1,
-                    "authName":"学生管理",
-                    "path":"user"
+                    "id": 1,
+                    "authName": "学生管理",
+                    "path": "user"
                 },
 
                 {
-                    "id":2,
-                    "authName":"订单管理",
-                    "path":"order"
+                    "id": 2,
+                    "authName": "订单管理",
+                    "path": "order"
                 },
                 {
-                    "id":3,
-                    "authName":"课程配置",
-                    "path":"course"
+                    "id": 3,
+                    "authName": "课程配置",
+                    "path": "course"
                 }
             ]
-            this.activePath = window.sessionStorage.getItem('activePath')
         },
         methods: {
             // 点击按钮，切换菜单的折叠与展开
@@ -90,18 +89,10 @@
                 this.isCollapse = !this.isCollapse
             },
             logout() {
-                console.log("退出登录")
-
-            },
-            // 保存链接的激活状态
-            saveNavState(activePath) {
-                window.sessionStorage.setItem('activePath', activePath)
-                this.activePath = activePath
+                window.location.href="/v1/api/admin/logout"
             },
             handleSelect(key, keyPath) {
-                console.log(key);
-                console.log(keyPath)
-                this.path=keyPath
+                this.path = keyPath
             }
 
 
@@ -109,7 +100,6 @@
 
 
     })
-
 
 
 </script>

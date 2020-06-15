@@ -72,7 +72,9 @@
                         const {data:obj}=res
                         if(obj.code===200){
                             window.location.href="/admin"
+                            return
                         }
+                        this.$message.error(obj.message);
             })
             .catch(error => {
                     console.log(error)

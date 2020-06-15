@@ -15,6 +15,7 @@ public class InterConfig implements WebMvcConfigurer {
                 excludePathPatterns("/v1/api/user/wxLogin").
                 excludePathPatterns("/v1/api/admin/axiosLogin").
                 excludePathPatterns("/login").
+                excludePathPatterns("/error").
                 excludePathPatterns("/vue/**").
                 excludePathPatterns("/css/**").
                 excludePathPatterns("/js/**");

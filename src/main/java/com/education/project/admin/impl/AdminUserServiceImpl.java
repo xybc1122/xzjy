@@ -1,9 +1,6 @@
 package com.education.project.admin.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.education.project.admin.service.AdminUserService;
@@ -25,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implements AdminUserService {
+
     private Lock lock = new ReentrantLock();
     private final IGradeService gradeService;
 
