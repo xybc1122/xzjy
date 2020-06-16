@@ -53,5 +53,4 @@ public class AdminCourseController {
 
         return courseService.webEditCourseService(info);
     }
-
 }

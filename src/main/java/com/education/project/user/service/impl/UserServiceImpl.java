@@ -7,8 +7,10 @@ import com.education.project.base.HttpResult;
 import com.education.project.user.mapper.UserMapper;
 import com.education.project.user.entity.User;
 import com.education.project.user.service.UserService;
+import com.education.project.utils.Base64Util;
 import com.education.project.utils.JwtUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -21,6 +23,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return HttpResult.fail("账号或密码错误");
         }
+        password = DigestUtils.md5DigestAsHex(Base64Util.
+                encoder(password + "=#=" + user.getUserName()).getBytes());
         if (!user.getPassword().equals(password)) {
             return HttpResult.fail("账号或密码错误");
         }
@@ -32,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getUserInfo(String studentId) {
         QueryWrapper<User> query = new QueryWrapper<>();
-        query.eq("student_id",studentId);
+        query.eq("student_id", studentId);
         return getOne(query);
     }
 

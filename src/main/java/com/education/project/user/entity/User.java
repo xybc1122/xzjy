@@ -55,4 +55,12 @@ public class User extends BaseEntity {
      */
     @NotBlank(groups = {ValidationGroupsUser.Register.class}, message = "手机号码不能为空")
     private String phone;
+
+    public User() {
+    }
+
+    public User(String studentId, String password) {
+        this.studentId = studentId;
+        this.password = password;
+    }
 }

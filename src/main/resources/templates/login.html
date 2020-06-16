@@ -8,7 +8,7 @@
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/md5.js"></script>
+    <script src="js/base64.js"></script>
 </head>
 <body>
 <div id="login" class="login_container">
@@ -64,9 +64,8 @@
                 this.$refs.loginFormRef.validate(valid => {
                     if (!valid) return
                 let userName=this.loginForm.username;
-                let base64 =b64_md5(this.loginForm.password);
-                const pwd= hex_md5(base64 + userName)
-                const user={userName:this.loginForm.username,password:pwd}
+                let base64Pwd = Base64.encode(this.loginForm.password)
+                const user={userName:userName,password:base64Pwd}
                 axios.post('/v1/api/admin/axiosLogin',user)
                     .then(res =>{
                         const {data:obj}=res

@@ -8,15 +8,17 @@
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/base64.js"></script>
 
 </head>
 <body>
 <el-container id="index" class="home-container">
     <!-- 头部区域 -->
     <el-header>
-        <div>
+        <div style="margin: 10px">
             <span>学之教育后台管理系统</span>
         </div>
+        <el-button type="primary" @click="editDialogPwdVisible= true">修改密码</el-button>
         <el-button type="info" @click="logout">退出</el-button>
     </el-header>
     <!-- 页面主体区域 -->
@@ -32,7 +34,7 @@
                      :collapse-transition="false"
                      :default-active="activePath">
                 <!-- 一级菜单 -->
-                <el-menu-item :index="'/' + item.path" v-for="item in menulist" :key="item.id">
+                <el-menu-item :index="'/' + item.path" v-for="item in menuList" :key="item.id">
                     <!-- 一级菜单的模板区域 -->
                     <template slot="title">
                         <!-- 文本 -->
@@ -47,6 +49,21 @@
         <el-main>
             <iframe id="iframe-page-content" frameBorder="0" :src="path" style="width:100%"></iframe>
         </el-main>
+        <el-dialog title="修改密码" :visible.sync="editDialogPwdVisible" width="50%" @close="editDialogClosed">
+            <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="80px">
+                <el-form-item label="密码" prop="adminPwd">
+                    <el-input v-model="editForm.adminPwd"></el-input>
+                </el-form-item>
+                <el-form-item label="确认密码" prop="confirmPwd">
+                    <el-input v-model="editForm.confirmPwd"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogPwdVisible = false">取 消</el-button>
+        <el-button type="primary" @click="resetAdminPwd">确 定</el-button>
+      </span>
+        </el-dialog>
+
     </el-container>
 </el-container>
 </body>
@@ -55,16 +72,41 @@
         el: "#index",
         data: {
             // 左侧菜单数据
-            menulist: [],
+            menuList: [],
             // 是否折叠
             isCollapse: false,
             activePath: '/user',
-            path: 'user'
+            path: 'user',
+            editForm: {
+                adminPwd: '',
+                confirmPwd: ''
+            },
+            editFormRules: {
+                adminPwd: [
+                    {required: true, message: '请输入密码', trigger: 'blur'},
+                    {
+                        min: 6,
+                        max: 15,
+                        message: '密码的长度在6~15个字符之间',
+                        trigger: 'blur'
+                    }
+                ],
+                confirmPwd: [
+                    {required: true, message: '请输入确认密码', trigger: 'blur'},
+                    {
+                        min: 6,
+                        max: 15,
+                        message: '确认密码的长度在6~15个字符之间',
+                        trigger: 'blur'
+                    }
+                ]
+            },
+            editDialogPwdVisible: false
         },
         created() {
             const height = document.documentElement.clientHeight;
             document.getElementById('iframe-page-content').style.height = height + 'px';
-            this.menulist = [
+            this.menuList = [
                 {
                     "id": 1,
                     "authName": "学生管理",
@@ -84,12 +126,49 @@
             ]
         },
         methods: {
+            // 监听修改用户对话框的关闭事件
+            editDialogClosed() {
+                this.$refs.editFormRef.resetFields()
+            },
+            resetAdminPwd() {
+                this.$refs.editFormRef.validate(valid => {
+                    if (!valid) return
+                    if (!(this.editForm.adminPwd === this.editForm.confirmPwd)) {
+                        this.$message.error("密码不一致");
+                        return
+                    }
+                    axios.get('/v1/api/admin/editAdminPwd', {
+                        params: {
+                            pwd: Base64.encode(this.editForm.adminPwd)
+                        }
+                    }).then(res => {
+                        const {data: obj} = res
+                        if (obj.code === 200) {
+                            this.$message({
+                                message: obj.message,
+                                type: 'success'
+                            });
+                            this.editDialogPwdVisible = false
+                            this.$alert('跳转登陆页面', '提示', {
+                                confirmButtonText: '确定',
+                                callback: action => {
+                                    window.location.href = '/login'
+                                }
+                            });
+                            return
+                        }
+                        this.$message.error(obj.message);
+                    }).catch(err => {
+
+                    })
+                })
+            },
             // 点击按钮，切换菜单的折叠与展开
             toggleCollapse() {
                 this.isCollapse = !this.isCollapse
             },
             logout() {
-                window.location.href="/v1/api/admin/logout"
+                window.location.href = "/v1/api/admin/logout"
             },
             handleSelect(key, keyPath) {
                 this.path = keyPath

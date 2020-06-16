@@ -7,7 +7,7 @@
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
-    <script src="js/md5.js"></script>
+    <script src="js/base64.js"></script>
 </head>
 <body>
 <div id="user">
@@ -36,6 +36,10 @@
                     <!-- 修改按钮 -->
                     <el-button type="primary" icon="el-icon-edit" size="mini"
                                @click="showEditDialog(scope.row)"></el-button>
+                    <el-tooltip effect="dark" content="密码重置" placement="top" :enterable="false">
+                        <el-button type="primary" icon="el-icon-refresh" size="mini"
+                                   @click="resetUserPassword(scope.row.studentId)"></el-button>
+                    </el-tooltip>
                     <!-- 删除按钮 -->
                     <el-button type="danger" icon="el-icon-delete" size="mini"
                                @click="removeUserById(scope.row.studentId)"></el-button>
@@ -113,11 +117,9 @@
     const checkMobile = (rule, value, cb) => {
         // 验证手机号的正则表达式
         const regMobile = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
-
         if (regMobile.test(value)) {
             return cb()
         }
-
         cb(new Error('请输入合法的手机号'))
     }
     new Vue({
@@ -185,7 +187,7 @@
             editForm: {
                 gradeId: '',
                 name: '',
-                studentId:''
+                studentId: ''
             },
             // 修改表单的验证规则对象
             editFormRules: {
@@ -209,22 +211,22 @@
             this.getUserList()
         },
         methods: {
-            removeUserById(student_id) {
+            resetUserPassword(student_id) {
                 // 弹框询问用户是否删除数据
-               this.$confirm(
-                    '此操作将永久删除该用户, 是否继续?',
+                this.$confirm(
+                    '此操作将重置此用户密码, 是否继续?',
                     '提示',
                     {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
                     }
-                ).then(()=>{
-                    axios.get('/v1/api/admin/removeUser',{
+                ).then(() => {
+                    axios.get('/v1/api/admin/resetPwd', {
                         params: {
-                            studentId: student_id
+                            studentId: Base64.encode(student_id)
                         }
-                   }).then(res=>{
+                    }).then(res => {
                         const {data: obj} = res
                         if (obj.code === 200) {
                             this.$message({
@@ -236,7 +238,38 @@
                         }
                         this.$message.error(obj.message);
 
-                    }).catch(err=>{
+                    }).catch(err => {
+                    })
+                }).catch(err => err)
+            },
+            removeUserById(student_id) {
+                // 弹框询问用户是否删除数据
+                this.$confirm(
+                    '此操作将永久删除该用户, 是否继续?',
+                    '提示',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }
+                ).then(() => {
+                    axios.get('/v1/api/admin/removeUser', {
+                        params: {
+                            studentId: Base64.encode(student_id)
+                        }
+                    }).then(res => {
+                        const {data: obj} = res
+                        if (obj.code === 200) {
+                            this.$message({
+                                message: obj.message,
+                                type: 'success'
+                            });
+                            this.getUserList()
+                            return
+                        }
+                        this.$message.error(obj.message);
+
+                    }).catch(err => {
                     })
                 }).catch(err => err)
 
@@ -263,12 +296,11 @@
                 this.$refs.addFormRef.validate(valid => {
                     if (!valid) return
                     let userName = this.addForm.username;
-                    let base64 = b64_md5(this.addForm.password);
-                    const pwd = hex_md5(base64 + userName)
+                    let base64Pwd = Base64.encode(this.addForm.password)
                     //拼接对象
                     const formUser = this.addForm
                     const addUser = {
-                        userName: userName, password: pwd,
+                        userName: userName, password: base64Pwd,
                         name: formUser.name, gradeId: formUser.gradeId, phone: formUser.mobile
                     }
                     axios.post('/v1/api/admin/addUser', addUser).then(res => {
@@ -293,13 +325,13 @@
             },
             showEditDialog(row) {
                 this.gradeList()
-                this.editForm.studentId=row.studentId
+                this.editForm.studentId = row.studentId
                 this.editForm.name = row.name
                 this.editForm.gradeId = row.gradeId
                 this.editDialogVisible = true
             },
             editUserInfo() {
-                this.$refs.editFormRef.validate(async valid => {
+                this.$refs.editFormRef.validate(valid => {
                     if (!valid) return
                     axios.post('/v1/api/admin/editUser', this.editForm).then(res => {
                         const {data: obj} = res
@@ -319,7 +351,6 @@
 
 
                     })
-                    console.log(this.editForm)
                 })
             },
             // 监听修改用户对话框的关闭事件
@@ -331,7 +362,7 @@
                     const {data: obj} = res
                     if (obj.code === 200) {
                         this.userList = obj.data.records
-                        this.total=obj.data.total
+                        this.total = obj.data.total
                     }
                 }).catch(err => {
                 })
