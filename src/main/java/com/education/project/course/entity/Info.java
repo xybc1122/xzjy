@@ -2,6 +2,7 @@ package com.education.project.course.entity;
 
 import java.math.BigDecimal;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import com.education.project.validation.ValidationGroupsCourse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -34,6 +36,7 @@ public class Info extends BaseEntity implements Serializable {
     /**
      * 课程id
      */
+    @TableId
     private String courseId;
 
     /**
@@ -62,12 +65,14 @@ public class Info extends BaseEntity implements Serializable {
      * 课程开始时间
      */
     @JsonFormat(pattern = "yyyy/MM/dd", locale = "zh", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date courseStartTime;
 
     /**
      * 课程结束时间
      */
     @JsonFormat(pattern = "yyyy/MM/dd", locale = "zh", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy/MM/dd")
     private Date courseEndTime;
 
     /**

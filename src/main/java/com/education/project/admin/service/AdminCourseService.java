@@ -9,7 +9,7 @@ public interface AdminCourseService extends IService<Info> {
 
 
     /**
-     * 学生列表
+     * 课程班级列表
      *
      * @param info
      * @return HttpResult
@@ -17,10 +17,27 @@ public interface AdminCourseService extends IService<Info> {
     HttpResult<Page<Info>> webGetCourseListService(Info info);
 
     /**
-     * 添加课程
+     * 添加课程班级
      *
      * @param info
      * @return HttpResult
      */
     HttpResult webAddCourseService(Info info);
+
+    /**
+     * 删除课程班级
+     *
+     * @param courseId 课程班级id
+     * @return HttpResult
+     */
+    HttpResult webRemoveCourseService(String courseId);
+
+
+    /**
+     * 修改课程班级
+     *
+     * @param info
+     * @return HttpResult
+     */
+    HttpResult webEditCourseService(Info info);
 }

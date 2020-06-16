@@ -4,16 +4,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.admin.service.AdminCourseService;
 import com.education.project.base.HttpResult;
 import com.education.project.course.entity.Info;
-import com.education.project.user.entity.User;
 import com.education.project.validation.ValidationGroupsCourse;
-import com.education.project.validation.ValidationGroupsUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AdminCourseController {
@@ -42,7 +37,21 @@ public class AdminCourseController {
     @PostMapping("/v1/api/admin/addCourse")
     @ResponseBody
     public HttpResult addCourse(@Validated(ValidationGroupsCourse.Register.class) @RequestBody Info info) {
-        return null;
+        return courseService.webAddCourseService(info);
+    }
+
+
+    @GetMapping("/v1/api/admin/removeCourse")
+    @ResponseBody
+    public HttpResult removeCourse(@RequestParam("courseId") String courseId) {
+        return courseService.webRemoveCourseService(courseId);
+    }
+
+    @PostMapping("/v1/api/admin/editCourse")
+    @ResponseBody
+    public HttpResult editCourse(@RequestBody Info info) {
+
+        return courseService.webEditCourseService(info);
     }
 
 }

@@ -92,7 +92,7 @@ public class AdminUserServiceImpl extends ServiceImpl<UserMapper, User> implemen
     public HttpResult<Page<User>> webGetUserListService(User user) {
         QueryWrapper<User> query = new QueryWrapper<>();
         query.eq("tenant", 0).
-                eq(StringUtils.isNotEmpty(user.getName()), "name", user.getName());
+                like(StringUtils.isNotEmpty(user.getName()), "name", user.getName());
         Page<User> page = page(new Page<>(user.getCurrent(), user.getOffset()), query);
         return HttpResult.success(page);
     }
