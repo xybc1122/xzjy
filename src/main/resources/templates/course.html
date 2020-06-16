@@ -22,11 +22,11 @@
                 </el-input>
             </el-col>
             <el-col :span="4">
-                <el-button type="primary" @click="addCourseDialogVisible = true">添加班级</el-button>
+                <el-button type="primary" @click="addCourseDialog">添加班级</el-button>
             </el-col>
         </el-row>
 
-        <!-- 用户列表区域 -->
+        <!-- 列表区域 -->
         <el-table :data="courseList" border stripe>
             <el-table-column fixed label="课程标题" prop="courseTitle" width="200px"></el-table-column>
             <el-table-column label="课程图片" prop="courseUrl" width="200px">
@@ -66,7 +66,7 @@
                        layout="total, sizes, prev, pager, next, jumper" :total="total">
         </el-pagination>
     </el-card>
-    <!-- 添加用户的对话框 -->
+    <!-- 添加班级的对话框 -->
     <el-dialog title="添加班级" :visible.sync="addCourseDialogVisible" width="50%">
         <!-- 内容主体区域 -->
         <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
@@ -96,6 +96,16 @@
                           show-word-limit
                 >
                 </el-input>
+            </el-form-item>
+            <el-form-item label="年级" prop="gradeId">
+                <el-select v-model="addForm.gradeId" placeholder="选择年级">
+                    <el-option
+                            v-for="item in grades"
+                            :key="item.id"
+                            :label="item.gradeName"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="价格" prop="coursePrice">
                 <el-input v-model="addForm.coursePrice"></el-input>
@@ -217,6 +227,7 @@
     new Vue({
         el: '#course',
         data: {
+            grades: [],//下拉款年级选择
             queryInfo: {
                 name: '',
                 // 当前的页数
@@ -237,7 +248,8 @@
                 courseCampus: '',
                 courseTeacher: '',
                 courseStock: 0,
-                coursePrice: 0
+                coursePrice: 0,
+                gradeId:''
             },
             addFormRules: {
                 courseTitle: [
@@ -287,6 +299,9 @@
                 ],
                 coursePrice: [
                     {validator: checkPrice, trigger: 'blur'}
+                ],
+                gradeId: [
+                    {required: true, message: '请选择年级', trigger: 'blur'},
                 ]
 
             },
@@ -300,7 +315,8 @@
                 courseCampus: '',
                 courseTeacher: '',
                 courseStock: 0,
-                coursePrice: 0
+                coursePrice: 0,
+                gradeId:''
             },
             editFormRules: {
                 courseTitle: [
@@ -359,6 +375,20 @@
             this.getCourseList()
         },
         methods: {
+            addCourseDialog(){
+                this.gradeList()
+                this.addCourseDialogVisible=true
+            },
+            //获得年级列表
+            gradeList() {
+                axios.get('/v1/api/grade/gradeList').then(res => {
+                    const {data: obj} = res
+                    if (obj.code === 200) {
+                        this.grades = obj.data
+                    }
+                }).catch(err => {
+                })
+            },
             // 监听修改用户对话框的关闭事件
             editDialogClosed() {
                 this.$refs.editFormRef.resetFields()
@@ -384,6 +414,7 @@
                 })
             },
             showEditDialog(row) {
+                this.gradeList()
                 this.editForm.courseId =row.courseId
                 this.editForm.courseTitle =row.courseTitle
                 this.editForm.courseDesc =row.courseDesc

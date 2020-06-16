@@ -149,9 +149,9 @@
                 username: [
                     {required: true, message: '请输入用户名', trigger: 'blur'},
                     {
-                        min: 5,
+                        min: 2,
                         max: 10,
-                        message: '用户名的长度在5~10个字符之间',
+                        message: '用户名的长度在2~10个字符之间',
                         trigger: 'blur'
                     }
                 ],
@@ -237,11 +237,7 @@
                         this.$message.error(obj.message);
 
                     }).catch(err=>{
-
-
                     })
-
-
                 }).catch(err => err)
 
             },

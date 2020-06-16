@@ -26,8 +26,6 @@ public class JwtUtils {
 
     private static final String APP_SECRET = "xzjy_app";
 
-    private static User user = new User();
-
     public static String genJsonWebToken(User user) {
         if (user == null || user.getStudentId() == null || StringUtils.isBlank(user.getName())) {
             throw new NullPointerException("--设置token失败");
@@ -42,8 +40,6 @@ public class JwtUtils {
         /*设置头部信息 Header*/
         return JWT.create().withHeader(map)
                 .withClaim("studentId", user.getStudentId())
-                .withClaim("name", user.getName())
-                .withClaim("gradeId", user.getGradeId())
                 .withIssuer(SERVICE)//签名是有谁生成 例如 服务器
                 .withSubject(SUBJECT)//签名的主题
                 .withIssuedAt(nowDate) //生成签名的时间
@@ -65,11 +61,7 @@ public class JwtUtils {
     public static void setJwtUser(HttpServletRequest request, String token) {
         DecodedJWT decodedJWT = checkJWT(token);
         String studentId = decodedJWT.getClaim("studentId").asString();
-        String name = decodedJWT.getClaim("name").asString();
-        Integer gradeId = decodedJWT.getClaim("gradeId").asInt();
         request.setAttribute("studentId", studentId);
-        request.setAttribute("name", name);
-        request.setAttribute("gradeId", gradeId);
     }
 
 }

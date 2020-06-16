@@ -7,13 +7,24 @@ import com.education.project.admin.service.AdminCourseService;
 import com.education.project.base.HttpResult;
 import com.education.project.course.entity.Info;
 import com.education.project.course.mapper.InfoMapper;
+import com.education.project.exception.LsException;
+import com.education.project.gc.entity.GradeCourse;
+import com.education.project.gc.service.IGradeCourseService;
 import com.education.project.utils.UUidUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AdminCourseServiceImpl extends ServiceImpl<InfoMapper, Info> implements AdminCourseService {
 
+    private final IGradeCourseService gc;
+
+    @Autowired
+    public AdminCourseServiceImpl(IGradeCourseService gc) {
+        this.gc = gc;
+    }
 
     @Override
     public HttpResult<Page<Info>> webGetCourseListService(Info info) {
@@ -24,6 +35,7 @@ public class AdminCourseServiceImpl extends ServiceImpl<InfoMapper, Info> implem
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public HttpResult webAddCourseService(Info info) {
         if (info.getCourseStock().equals(0)) {
             //设置班级已满
@@ -33,13 +45,22 @@ public class AdminCourseServiceImpl extends ServiceImpl<InfoMapper, Info> implem
         if (!save(info)) {
             return HttpResult.fail("添加失败");
         }
+        if (!gc.save(new GradeCourse(info.getCourseId(), info.getGradeId()))) {
+            throw new LsException("添加失败");
+        }
         return HttpResult.success("添加成功");
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public HttpResult webRemoveCourseService(String courseId) {
         if (!removeById(courseId)) {
             return HttpResult.fail("删除失败");
+        }
+        QueryWrapper<GradeCourse> delWrapper = new QueryWrapper<>();
+        delWrapper.eq("course_id", courseId);
+        if (!gc.remove(delWrapper)) {
+            throw new LsException("删除失败");
         }
         return HttpResult.success("删除成功");
     }

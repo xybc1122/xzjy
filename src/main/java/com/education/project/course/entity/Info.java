@@ -2,6 +2,7 @@ package com.education.project.course.entity;
 
 import java.math.BigDecimal;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -90,11 +91,16 @@ public class Info extends BaseEntity implements Serializable {
     /**
      * 满级是否已满 0代表未满 1代表已满
      */
-    private Integer courseFull;
+    private Integer courseFull = 0;
     /**
      * 班级人数数量
      */
     @NotNull(groups = {ValidationGroupsCourse.Register.class}, message = "班级人数不能为空")
     private Integer courseStock;
+    /**
+     * 年级id
+     */
+    @TableField(exist = false)
+    private Integer gradeId;
 
 }

@@ -28,5 +28,11 @@ public class GradeCourse implements Serializable {
      */
     private String courseId;
 
+    public GradeCourse() {
+    }
 
+    public GradeCourse(String courseId,Integer gradeId) {
+        this.gradeId = gradeId;
+        this.courseId = courseId;
+    }
 }

@@ -16,7 +16,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     public HttpResult<User> wxLoginService(String userName, String password) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_name", userName).eq("tenant",0);
+        queryWrapper.eq("user_name", userName).eq("tenant", 0);
         User user = getOne(queryWrapper);
         if (user == null) {
             return HttpResult.fail("账号或密码错误");
@@ -27,6 +27,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = JwtUtils.genJsonWebToken(user);
         user.setToken(token);
         return HttpResult.success(user);
+    }
+
+    @Override
+    public User getUserInfo(String studentId) {
+        QueryWrapper<User> query = new QueryWrapper<>();
+        query.eq("student_id",studentId);
+        return getOne(query);
     }
 
 }
