@@ -13,6 +13,7 @@ public class InterConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new InterCenter()).addPathPatterns("/**").
                 excludePathPatterns("/v1/api/user/wxLogin").
+                excludePathPatterns("/v1/api/user/wxEdit").
                 excludePathPatterns("/v1/api/admin/axiosLogin").
                 excludePathPatterns("/login").
                 excludePathPatterns("/error").

@@ -3,8 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <title>订单管理</title>
+    <link href="vue/index.css" rel="stylesheet" type="text/css"/>
+    <script src="vue/vue.js"></script>
+    <script src="vue/axios.min.js"></script>
+    <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-订单管理
+<div id="order">
+    <el-card>
+        <!-- 搜索与添加区域 -->
+        <el-row :gutter="20">
+            <el-col :span="8">
+
+            </el-col>
+            <el-col :span="4">
+
+            </el-col>
+        </el-row>
+
+        <!-- 列表区域 -->
+        <el-table :data="orderList" border stripe>
+            <el-table-column fixed label="订单编号" prop="orderNumber" width="200px"></el-table-column>
+            <el-table-column fixed label="班级名称" prop="title" width="200px"></el-table-column>
+            <el-table-column label="课程图片" prop="courseUrl" width="200px">
+                <!--&lt;!&ndash;加入下面的内容,scope.row代表这一行,img是显示这一行的哪个字段,我的是img,你的自己看下&ndash;&gt;-->
+                <template slot-scope="scope">
+                    {{scope.row}}
+                    <!--<img :src="scope.row.courseUrl" alt="" style="width: 180px;height: 100px">-->
+                </template>
+            </el-table-column>
+            <el-table-column label="学生姓名" prop="studentName" width="150px"></el-table-column>
+            <el-table-column label="金额" prop="price" width="150px"></el-table-column>
+            <el-table-column label="是否支付" prop="statePay" width="150px">
+                <!--<template slot-scope="scope">-->
+                    <!--<span :style="scope.row.statePay==1? 'color:#409EFF': 'color:red'">-->
+                    <!--{{scope.row.statePay==1? '已支付' : '未支付'}}-->
+                    <!--</span>-->
+                <!--</template>-->
+            </el-table-column>
+        </el-table>
+        <!-- 分页区域 -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                       :current-page="queryInfo.current" :page-sizes="[1, 2, 5, 10]" :page-size="queryInfo.offset"
+                       layout="total, sizes, prev, pager, next, jumper" :total="total">
+        </el-pagination>
+    </el-card>
+</div>
 </body>
+<script>
+    new Vue({
+        el: '#order',
+        data: {
+            orderList: [],
+            queryInfo: {
+                // 当前的页数
+                current: 1,
+                // 当前每页显示多少条数据
+                offset: 10
+            },
+            total: 0
+
+
+        },
+        created() {
+            this.getOrderList()
+        },
+        methods: {
+            getOrderList() {
+                axios.post('/v1/api/admin/getCourseOrderList', this.queryInfo).then(res => {
+                    const {data: obj} = res
+                    if (obj.code === 200) {
+                        this.orderList = obj.data.records
+                        this.total = obj.data.total
+                        return
+                    }
+                    this.$message.error(obj.message);
+                }).catch(err => {
+
+                })
+            },
+            // 监听 pagesize 改变的事件
+            handleSizeChange(newSize) {
+                this.queryInfo.offset = newSize
+                this.getOrderList()
+            },
+            // 监听 页码值 改变的事件
+            handleCurrentChange(newPage) {
+                this.queryInfo.current = newPage
+                this.getOrderList()
+            }
+
+
+        }
+    })
+
+
+</script>
 </html>

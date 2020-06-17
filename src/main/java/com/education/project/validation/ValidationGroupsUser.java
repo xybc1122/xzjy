@@ -7,4 +7,7 @@ public class ValidationGroupsUser {
 
     public interface ResetPassword {
     }
+    public interface WxEdit {
+
+    }
 }

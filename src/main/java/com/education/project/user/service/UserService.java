@@ -9,6 +9,8 @@ public interface UserService extends IService<User> {
 
     HttpResult<User> wxLoginService(String userName, String password);
 
+    HttpResult wxEditService(String userName, String oldPwd, String newPwd);
+
     User getUserInfo(String studentId);
 
 }

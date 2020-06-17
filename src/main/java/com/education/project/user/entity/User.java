@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -22,13 +21,26 @@ public class User extends BaseEntity {
     private String studentId;
 
     @NotBlank(groups = {ValidationGroupsUser.Register.class}, message = "账号不能为空")
+    @NotBlank(groups = {ValidationGroupsUser.WxEdit.class}, message = "账号不能为空")
+    @Size(groups = {ValidationGroupsUser.WxEdit.class}, min = 2, max = 10,message = "账号不规范")
     @NotBlank(message = "账号不能为空")
+    @Size(min = 2, max = 10,message = "账号不规范")
     private String userName;
 
     @NotBlank(groups = {ValidationGroupsUser.Register.class}, message = "密码不能为空")
+    @NotBlank(groups = {ValidationGroupsUser.WxEdit.class}, message = "密码不能为空")
+    @Size(groups = {ValidationGroupsUser.WxEdit.class}, min = 6, max = 15,message = "密码不规范")
     @NotBlank(message = "密码不能为空")
+    @Size(min = 6, max = 15,message = "密码不规范")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotBlank(groups = {ValidationGroupsUser.WxEdit.class}, message = "确认密码不能为空")
+    @Size(groups = {ValidationGroupsUser.WxEdit.class}, min = 6, max = 15,message = "确认密码不规范")
+    @TableField(exist = false)
+    private String newPassword;
     /**
      * 姓名
      */

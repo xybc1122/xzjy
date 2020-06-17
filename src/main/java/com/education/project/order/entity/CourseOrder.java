@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.education.project.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,7 +20,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class CourseOrder implements Serializable {
+public class CourseOrder extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,12 +43,12 @@ public class CourseOrder implements Serializable {
     /**
      * 图片url
      */
-    private String url;
+    private String courseUrl;
 
     /**
      * 是否支付0是未支付 1是已支付
      */
-    private Integer isPay;
+    private Integer statePay;
 
     /**
      * 用户id
@@ -63,6 +64,10 @@ public class CourseOrder implements Serializable {
      * 微信小程序openId
      */
     private String openId;
+    /**
+     * 学生姓名
+     */
+    private String studentName;
 
 
 }
