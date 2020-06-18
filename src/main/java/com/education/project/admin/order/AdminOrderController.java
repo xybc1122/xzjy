@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.admin.service.AdminCourseOrderService;
 import com.education.project.base.HttpResult;
 import com.education.project.order.entity.CourseOrder;
+import com.education.project.order.entity.CourseOrderBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class AdminOrderController {
 
     @PostMapping("/v1/api/admin/getCourseOrderList")
     @ResponseBody
-    public HttpResult<Page<CourseOrder>> getCourseOrderList(@RequestBody CourseOrder courseOrder) {
-        return courseOrderService.webGetCourseOrderListService(courseOrder);
+    public HttpResult<Page<CourseOrder>> getCourseOrderList(@RequestBody CourseOrderBo bo) {
+        return courseOrderService.webGetCourseOrderListService(bo);
     }
 }

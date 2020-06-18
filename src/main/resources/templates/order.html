@@ -11,35 +11,76 @@
 <body>
 <div id="order">
     <el-card>
-        <!-- 搜索与添加区域 -->
         <el-row :gutter="20">
+            <el-col :span="4">
+                <el-input
+                        placeholder="请输入订单号"
+                        v-model="queryInfo.orderNumber"
+                        clearable>
+                </el-input>
+            </el-col>
             <el-col :span="8">
-
+                <el-date-picker
+                        v-model="queryInfo.queryTime"
+                        type="daterange"
+                        range-separator="至"
+                        value-format="yyyy-MM-dd"
+                        start-placeholder="开始日期"
+                        end-placeholder="结束日期">
+                </el-date-picker>
             </el-col>
             <el-col :span="4">
+                <el-input
+                        placeholder="请输入学生名称"
+                        v-model="queryInfo.studentName"
+                        clearable>
+                </el-input>
+            </el-col>
+            <el-col :span="4">
+                <el-input
+                        placeholder="请输入班级名称"
+                        v-model="queryInfo.title"
+                        clearable>
+                </el-input>
+            </el-col>
 
+            <el-col :span="4">
+                <el-select v-model="queryInfo.payState" clearable placeholder="请选择是否支付">
+                    <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-col>
+
+            <el-col :span="2" style="margin-top: 10px">
+                <el-button type="primary" @click="getOrderList">查询</el-button>
+            </el-col>
+            <el-col :span="2"  style="margin-top: 10px">
+                <el-button type="primary" @click="exportList">导出</el-button>
             </el-col>
         </el-row>
 
         <!-- 列表区域 -->
-        <el-table :data="orderList" border stripe>
+        <el-table :data="orderList" border stripe style="margin-top: 10px">
             <el-table-column fixed label="订单编号" prop="orderNumber" width="200px"></el-table-column>
             <el-table-column fixed label="班级名称" prop="title" width="200px"></el-table-column>
             <el-table-column label="课程图片" prop="courseUrl" width="200px">
                 <!--&lt;!&ndash;加入下面的内容,scope.row代表这一行,img是显示这一行的哪个字段,我的是img,你的自己看下&ndash;&gt;-->
                 <template slot-scope="scope">
-                    {{scope.row}}
-                    <!--<img :src="scope.row.courseUrl" alt="" style="width: 180px;height: 100px">-->
+                    <img :src="scope.row.courseUrl" alt="" style="width: 180px;height: 100px">
                 </template>
             </el-table-column>
             <el-table-column label="学生姓名" prop="studentName" width="150px"></el-table-column>
             <el-table-column label="金额" prop="price" width="150px"></el-table-column>
             <el-table-column label="是否支付" prop="statePay" width="150px">
-                <!--<template slot-scope="scope">-->
-                    <!--<span :style="scope.row.statePay==1? 'color:#409EFF': 'color:red'">-->
-                    <!--{{scope.row.statePay==1? '已支付' : '未支付'}}-->
-                    <!--</span>-->
-                <!--</template>-->
+                <template slot-scope="scope">
+                <span :style="scope.row.statePay==1? 'color:#409EFF': 'color:red'">
+                {{scope.row.statePay==1? '已支付' : '未支付'}}
+                </span>
+                </template>
             </el-table-column>
         </el-table>
         <!-- 分页区域 -->
@@ -56,20 +97,39 @@
         data: {
             orderList: [],
             queryInfo: {
+                orderNumber: '',
+                queryTime: [],
+                title: '',
+                studentName: '',
+                payState: '',
                 // 当前的页数
                 current: 1,
                 // 当前每页显示多少条数据
                 offset: 10
             },
-            total: 0
+            total: 0,
+            options: [{
+                value: '1',
+                label: "已支付"
+            }, {
+                value: '0',
+                label: "未支付"
+            }],
 
 
         },
         created() {
+            const start= new Date()
+            start.setDate(1)
+            this.queryInfo.queryTime.push(start,new Date())
             this.getOrderList()
         },
         methods: {
+            exportList(){
+
+            },
             getOrderList() {
+                console.log(this.queryInfo)
                 axios.post('/v1/api/admin/getCourseOrderList', this.queryInfo).then(res => {
                     const {data: obj} = res
                     if (obj.code === 200) {

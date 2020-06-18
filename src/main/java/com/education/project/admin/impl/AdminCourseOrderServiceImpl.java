@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.education.project.admin.service.AdminCourseOrderService;
 import com.education.project.base.HttpResult;
 import com.education.project.order.entity.CourseOrder;
+import com.education.project.order.entity.CourseOrderBo;
 import com.education.project.order.mapper.CourseOrderMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,9 +17,23 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
 
 
     @Override
-    public HttpResult<Page<CourseOrder>> webGetCourseOrderListService(CourseOrder courseOrder) {
+    public HttpResult<Page<CourseOrder>> webGetCourseOrderListService(CourseOrderBo bo) {
         QueryWrapper<CourseOrder> query = new QueryWrapper<>();
-        Page<CourseOrder> page = page(new Page<>(courseOrder.getCurrent(), courseOrder.getOffset()), query);
+        if (bo.getQueryTime() == null || bo.getQueryTime().isEmpty()) {
+            return HttpResult.fail("请输入查询时间");
+        }
+        String start = bo.getQueryTime().get(0);
+        String end = bo.getQueryTime().get(1);
+        query.like(StringUtils.isNotEmpty(bo.getOrderNumber()),
+                "order_number", bo.getOrderNumber())
+                .between("create_time", start, end)
+                .like(StringUtils.isNotEmpty(bo.getStudentName()),
+                        "student_name", bo.getStudentName())
+                .like(StringUtils.isNotEmpty(bo.getTitle()),
+                        "title", bo.getTitle())
+                .eq(StringUtils.isNotEmpty(bo.getPayState()), "state_pay",
+                        bo.getPayState()).orderByDesc("create_time");
+        Page<CourseOrder> page = page(new Page<>(bo.getCurrent(), bo.getOffset()), query);
         return HttpResult.success(page);
     }
 }
