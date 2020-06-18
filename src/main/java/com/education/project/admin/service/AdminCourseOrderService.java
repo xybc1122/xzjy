@@ -16,4 +16,14 @@ public interface AdminCourseOrderService  extends IService<CourseOrder> {
      * @return HttpResult
      */
     HttpResult<Page<CourseOrder>> webGetCourseOrderListService(CourseOrderBo bo);
+
+
+
+    /**
+     * 订单明细列表
+     *
+     * @param courseId
+     * @return HttpResult
+     */
+    HttpResult wxAddCourseOrderService(String courseId,String studentId,String openId);
 }

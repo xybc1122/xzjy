@@ -5,8 +5,10 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.education.project.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -69,5 +71,16 @@ public class CourseOrder extends BaseEntity implements Serializable {
      */
     private String studentName;
 
+    /**
+     * 班级信息id
+     */
+    private String courseId;
+
+    /**
+     * 用户是否删除
+     */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @TableField("is_del")
+    private Integer stateDel;
 
 }

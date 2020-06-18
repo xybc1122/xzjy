@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
- *  服务实现类
+ * 服务实现类
  * </p>
  *
  * @author jobob
@@ -27,24 +27,24 @@ public class CourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, Cours
     public HttpResult<String> getOrderCount(String studentId) {
         //已支付
         LambdaQueryWrapper<CourseOrder> payLambda = new LambdaQueryWrapper<>();
-        payLambda.eq(CourseOrder::getStudentId, studentId).eq(CourseOrder::getStatePay, 1);
+        payLambda.eq(CourseOrder::getStudentId, studentId).eq(CourseOrder::getStatePay, 1).eq(CourseOrder::getStateDel, 1);
         int payCount = count(payLambda);
         //未支付
         LambdaQueryWrapper<CourseOrder> notPayLambda = new LambdaQueryWrapper<>();
-        notPayLambda.eq(CourseOrder::getStudentId, studentId).eq(CourseOrder::getStatePay, 0);
+        notPayLambda.eq(CourseOrder::getStudentId, studentId).eq(CourseOrder::getStatePay, 0).eq(CourseOrder::getStateDel, 1);
         int notPayCount = count(notPayLambda);
 
         String strCount = payCount + "#" + notPayCount;
 
         return HttpResult.success(strCount, "success");
-}
+    }
 
     @Override
     public HttpResult<Page<CourseOrder>> getOrderList(String studentId, int isPay, int current, int offset) {
         LambdaQueryWrapper<CourseOrder> lambda = new LambdaQueryWrapper<>();
-        lambda.eq(CourseOrder::getStatePay,isPay).eq(CourseOrder::getStudentId,studentId);
-        lambda.orderByDesc(CourseOrder::getCreateTime);
-        Page<CourseOrder> page =page(new Page<>(current,offset),lambda);
+        lambda.eq(CourseOrder::getStatePay, isPay).eq(CourseOrder::getStudentId, studentId).
+                eq(CourseOrder::getStateDel, 1).orderByDesc(CourseOrder::getCreateTime);
+        Page<CourseOrder> page = page(new Page<>(current, offset), lambda);
         return HttpResult.success(page);
     }
 }

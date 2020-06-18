@@ -10,6 +10,16 @@ public class CourseOrderBo extends CourseOrder {
 
     private String payState;
 
+    private String  CourseId;
+
+    public String getCourseId() {
+        return CourseId;
+    }
+
+    public void setCourseId(String courseId) {
+        CourseId = courseId;
+    }
+
     public String getPayState() {
         return payState;
     }
