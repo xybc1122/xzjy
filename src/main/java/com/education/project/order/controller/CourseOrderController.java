@@ -49,4 +49,10 @@ public class CourseOrderController {
         return courseOrderService.getOrderList(studentId, isPay, current, offset);
     }
 
+
+    @GetMapping("delOrder")
+    public HttpResult delOrder(@RequestParam("orderNumber") String orderNumber) {
+        return courseOrderService.delOrder(orderNumber);
+    }
+
 }

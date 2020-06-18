@@ -1,11 +1,11 @@
 package com.education.project.order.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.io.Serializable;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.education.project.base.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +29,7 @@ public class CourseOrder extends BaseEntity implements Serializable {
     /**
      * 订单编号
      */
+    @TableId
     private String orderNumber;
 
     /**

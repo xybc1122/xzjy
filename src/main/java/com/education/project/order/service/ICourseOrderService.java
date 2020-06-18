@@ -27,5 +27,7 @@ public interface ICourseOrderService extends IService<CourseOrder> {
 
     HttpResult<Page<CourseOrder>> getOrderList(String studentId, int isPay, int current, int offset);
 
+    HttpResult  delOrder(String orderNumber);
+
 
 }
