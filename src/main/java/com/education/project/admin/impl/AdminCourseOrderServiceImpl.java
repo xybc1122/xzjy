@@ -29,12 +29,14 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
         implements AdminCourseOrderService {
     private final IInfoService infoCourseService;
     private final UserService userService;
+    private final IInfoService iInfoService;
     private Lock lock = new ReentrantLock();
 
     @Autowired
-    public AdminCourseOrderServiceImpl(IInfoService infoCourseService, UserService userService) {
+    public AdminCourseOrderServiceImpl(IInfoService infoCourseService, UserService userService, IInfoService iInfoService) {
         this.infoCourseService = infoCourseService;
         this.userService = userService;
+        this.iInfoService = iInfoService;
     }
 
     @Override
@@ -100,5 +102,27 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public HttpResult webRemoveCourseOrderService(String orderNumber) {
+        //获得订单信息
+        CourseOrder order = getById(orderNumber);
+        if (!removeById(orderNumber)) {
+            return HttpResult.fail("删除失败");
+        }
+        //获得班级信息
+        Info info = iInfoService.getById(order.getCourseId());
+        UpdateWrapper<Info> updateInfo = new UpdateWrapper<>();
+        updateInfo.eq("course_id", order.getCourseId()).set("course_stock", info.getCourseStock() + 1);
+        //如果这个课程已经满了 变成未满状态
+        if (info.getCourseFull() == 1) {
+            updateInfo.set("course_full", 0);
+        }
+        if (!iInfoService.update(updateInfo)) {
+            throw new LsException("删除失败");
+        }
+        return HttpResult.success("删除成功");
     }
 }

@@ -49,6 +49,12 @@ public class AdminOrderController {
         return courseOrderService.wxAddCourseOrderService(courseId, RequestUtils.getStudentId(request), openId);
     }
 
+    @GetMapping("/v1/api/admin/removeCourseOrder")
+    @ResponseBody
+    public HttpResult removeCourseOrder(@RequestParam("orderNumber") String orderNumber) {
+        return courseOrderService.webRemoveCourseOrderService(orderNumber);
+    }
+
     @PostMapping("/v1/api/admin/downloadOrderExcel")
     public void downloadOrderExcel(HttpServletResponse response, @RequestBody CourseOrderBo bo) throws IOException {
         bo.setOffset(Integer.MAX_VALUE);

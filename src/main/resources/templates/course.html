@@ -74,19 +74,16 @@
             <el-form-item label="班级标题" prop="courseTitle">
                 <el-input v-model="addForm.courseTitle"></el-input>
             </el-form-item>
-            <el-form-item label="图片">
-                <el-upload
-                        action=""
-                        :limit="1"
-                        list-type="picture-card"
-                        :on-preview="handlePictureCardPreview"
-                        :on-remove="handleRemove"
-                        :before-upload="beforeAvatarUpload"
-                        :on-exceed="handleExceed"
-                        :auto-upload="false">
-                    <i class="el-icon-plus"></i>
-                    <div slot="tip" class="el-upload_tip" v-text="uploadMsg"></div>
-                </el-upload>
+            <el-form-item label="图片地址">
+                <el-input v-model="addForm.courseUrl"
+                          type="textarea"
+                          placeholder="请输入图片链接"
+                          v-model="textarea"
+                          maxlength="256"
+                          show-word-limit
+                >
+                </el-input>
+                <el-button size="mini" type="primary" icon="el-icon-search" @click="addImgDialogVisible = true">预览</el-button>
             </el-form-item>
             <el-form-item label="描述" prop="courseDesc">
                 <el-input v-model="addForm.courseDesc"
@@ -134,7 +131,7 @@
                 <el-input v-model="addForm.courseTeacher"></el-input>
             </el-form-item>
             <el-form-item label="班级人数" prop="courseStock">
-                <el-input v-model="addForm.courseStock"  oninput="value=value.replace(/[^\d]/g,'')"></el-input>
+                <el-input v-model="addForm.courseStock" oninput="value=value.replace(/[^\d]/g,'')"></el-input>
             </el-form-item>
         </el-form>
         <!-- 底部区域 -->
@@ -144,8 +141,13 @@
 <el-button type="primary" @click="addCourse">确 定</el-button>
 </span>
     </el-dialog>
-    <el-dialog :visible.sync="dialogVisible">
-        <img width="100%" :src="dialogImageUrl" alt="">
+
+    <el-dialog :visible.sync="addImgDialogVisible">
+        <img width="100%" :src="addForm.courseUrl" alt="">
+    </el-dialog>
+
+    <el-dialog :visible.sync="editImgDialogVisible">
+        <img width="100%" :src="editForm.courseUrl" alt="">
     </el-dialog>
 
     <!-- 修改课程班级的对话框 -->
@@ -155,19 +157,16 @@
             <el-form-item label="班级标题" prop="courseTitle">
                 <el-input v-model="editForm.courseTitle"></el-input>
             </el-form-item>
-            <el-form-item label="图片">
-                <el-upload
-                        action=""
-                        :limit="1"
-                        list-type="picture-card"
-                        :on-preview="handlePictureCardPreview"
-                        :on-remove="handleRemove"
-                        :before-upload="beforeAvatarUpload"
-                        :on-exceed="handleExceed"
-                        :auto-upload="false">
-                    <i class="el-icon-plus"></i>
-                    <div slot="tip" class="el-upload_tip" v-text="uploadMsg"></div>
-                </el-upload>
+                <el-form-item label="图片地址">
+                    <el-input v-model="editForm.courseUrl"
+                              type="textarea"
+                              placeholder="请输入图片链接"
+                              v-model="textarea"
+                              maxlength="256"
+                              show-word-limit
+                    >
+                    </el-input>
+                    <el-button size="mini" type="primary" icon="el-icon-search" @click="editImgDialogVisible =true">预览</el-button>
             </el-form-item>
             <el-form-item label="描述" prop="courseDesc">
                 <el-input v-model="editForm.courseDesc"
@@ -205,12 +204,12 @@
                 <el-input v-model="editForm.courseTeacher"></el-input>
             </el-form-item>
             <el-form-item label="班级人数" prop="courseStock">
-                <el-input v-model="editForm.courseStock"  oninput="value=value.replace(/[^\d]/g,'')"></el-input>
+                <el-input v-model="editForm.courseStock" oninput="value=value.replace(/[^\d]/g,'')"></el-input>
             </el-form-item>
         </el-form>
-    <el-button @click="editDialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="editCourseInfo">确 定</el-button>
-    </span>
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editCourseInfo">确 定</el-button>
+        </span>
     </el-dialog>
 </div>
 
@@ -228,7 +227,7 @@
     new Vue({
         el: '#course',
         data: {
-            uploadMsg:'只能上传.jpg图片,且不超过1M',
+            uploadMsg: '只能上传.jpg图片,且不超过1M',
             grades: [],//下拉款年级选择
             queryInfo: {
                 name: '',
@@ -240,7 +239,8 @@
             courseList: [],
             total: 0,
             dialogImageUrl: '',
-            dialogVisible: false,
+            addImgDialogVisible: false,
+            editImgDialogVisible: false,
             addCourseDialogVisible: false,//添加班级
             addForm: {
                 courseTitle: '',
@@ -251,7 +251,8 @@
                 courseTeacher: '',
                 courseStock: 0,
                 coursePrice: 0,
-                gradeId:''
+                gradeId: '',
+                courseUrl: ''
             },
             addFormRules: {
                 courseTitle: [
@@ -307,9 +308,9 @@
                 ]
 
             },
-            editDialogVisible:false,
+            editDialogVisible: false,
             editForm: {
-                courseId:'',
+                courseId: '',
                 courseTitle: '',
                 courseDesc: '',
                 courseStartTime: '',
@@ -318,7 +319,8 @@
                 courseTeacher: '',
                 courseStock: 0,
                 coursePrice: 0,
-                gradeId:''
+                gradeId: '',
+                courseUrl:''
             },
             editFormRules: {
                 courseTitle: [
@@ -377,13 +379,13 @@
             this.getCourseList()
         },
         methods: {
-            addCourseDialog(){
+            addCourseDialog() {
                 this.gradeList()
-                this.addCourseDialogVisible=true
+                this.addCourseDialogVisible = true
             },
             //获得年级列表
             gradeList() {
-               get('/v1/api/grade/gradeList').then(res => {
+                get('/v1/api/grade/gradeList').then(res => {
                     if (res.code === 200) {
                         this.grades = res.data
                     }
@@ -394,10 +396,10 @@
             editDialogClosed() {
                 this.$refs.editFormRef.resetFields()
             },
-            editCourseInfo(){
+            editCourseInfo() {
                 this.$refs.editFormRef.validate(valid => {
-                        if (!valid) return
-                   post('/v1/api/admin/editCourse',this.editForm).then(res=>{
+                    if (!valid) return
+                    post('/v1/api/admin/editCourse', this.editForm).then(res => {
                         if (res.code === 200) {
                             this.$message({
                                 message: res.message,
@@ -415,15 +417,16 @@
             },
             showEditDialog(row) {
                 this.gradeList()
-                this.editForm.courseId =row.courseId
-                this.editForm.courseTitle =row.courseTitle
-                this.editForm.courseDesc =row.courseDesc
-                this.editForm.courseStartTime =row.courseStartTime
-                this.editForm.courseEndTime =row.courseEndTime
-                this.editForm.courseCampus =row.courseCampus
-                this.editForm.courseTeacher =row.courseTeacher
-                this.editForm.courseStock =row.courseStock
-                this.editForm.coursePrice =row.coursePrice
+                this.editForm.courseId = row.courseId
+                this.editForm.courseTitle = row.courseTitle
+                this.editForm.courseDesc = row.courseDesc
+                this.editForm.courseStartTime = row.courseStartTime
+                this.editForm.courseEndTime = row.courseEndTime
+                this.editForm.courseCampus = row.courseCampus
+                this.editForm.courseTeacher = row.courseTeacher
+                this.editForm.courseStock = row.courseStock
+                this.editForm.coursePrice = row.coursePrice
+                this.editForm.courseUrl = row.courseUrl
                 this.editDialogVisible = true
             },
             removeCourseById(course_id) {
@@ -436,9 +439,10 @@
                         cancelButtonText: '取消',
                         type: 'warning'
                     }
-                ).then(()=>{
-                    get('/v1/api/admin/removeCourse',{courseId: course_id
-                    }).then(res=>{
+                ).then(() => {
+                    get('/v1/api/admin/removeCourse', {
+                        courseId: course_id
+                    }).then(res => {
                         if (res.code === 200) {
                             this.$message({
                                 message: res.message,
@@ -449,7 +453,7 @@
                         }
                         this.$message.error(res.message);
 
-                    }).catch(err=>{
+                    }).catch(err => {
 
 
                     })
@@ -464,7 +468,7 @@
             addCourse() {
                 this.$refs.addFormRef.validate(valid => {
                     if (!valid) return
-                    post('/v1/api/admin/addCourse',this.addForm).then(res=>{
+                    post('/v1/api/admin/addCourse', this.addForm).then(res => {
                         if (res.code === 200) {
                             this.$message({
                                 message: res.message,
@@ -487,31 +491,6 @@
                     }
                 }).catch(err => {
                 })
-            },
-            handleExceed() {
-                this.$message.error('只能上传一张图片');
-            },
-            handleRemove(file, fileList) {
-                console.log(file, fileList);
-            },
-            handlePictureCardPreview(file) {
-                this.dialogImageUrl = file.url;
-                this.dialogVisible = true;
-            },
-            handleAvatarSuccess(res, file) {
-                this.imageUrl = URL.createObjectURL(file.raw);
-            },
-            beforeAvatarUpload(file) {
-                const isJPG = file.type === 'image/jpeg';
-                const isLt2M = file.size / 1024 / 1024 < 1;
-
-                if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 格式!');
-                }
-                if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 1MB!');
-                }
-                return isJPG && isLt2M;
             },
             // 监听 pagesize 改变的事件
             handleSizeChange(newSize) {

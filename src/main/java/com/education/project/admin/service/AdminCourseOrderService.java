@@ -27,4 +27,7 @@ public interface AdminCourseOrderService  extends IService<CourseOrder> {
      */
     HttpResult wxAddCourseOrderService(String courseId,String studentId,String openId);
 
+
+    HttpResult webRemoveCourseOrderService(String orderNumber);
+
 }

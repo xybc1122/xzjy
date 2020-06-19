@@ -83,6 +83,13 @@
                 </span>
                 </template>
             </el-table-column>
+            <el-table-column fixed="right" label="操作" width="200px">
+                <template slot-scope="scope">
+                    <!-- 删除按钮 -->
+                    <el-button type="danger" icon="el-icon-delete" size="mini"
+                               @click="removeCourseOrderById(scope.row.orderNumber)"></el-button>
+                </template>
+            </el-table-column>
         </el-table>
         <!-- 分页区域 -->
         <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
@@ -130,9 +137,36 @@
             this.getOrderList()
         },
         methods: {
+            removeCourseOrderById(orderNumber) {
+                this.$confirm(
+                    '此操作将永久删除该用户, 是否继续?',
+                    '提示',
+                    {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }
+                ).then(() => {
+                    get('/v1/api/admin/removeCourseOrder', {
+                        orderNumber: orderNumber
+                    }).then(res => {
+                        if (res.code === 200) {
+                            this.$message({
+                                message: res.message,
+                                type: 'success'
+                            });
+                            this.getOrderList()
+                            return
+                        }
+                        this.$message.error(res.message);
+
+                    }).catch(err => {
+                    })
+                }).catch(err => err)
+            },
             exportList() {
                 this.excelLoading = true
-                setTimeout(()=>{
+                setTimeout(() => {
                     exportExcel('/v1/api/admin/downloadOrderExcel', 'POST', this.queryInfo).then(res => {
                         fileDownload(res, '订单明细.xlsx')
                         this.excelLoading = false
@@ -140,7 +174,7 @@
                         this.$message.error("下载异常");
                         this.excelLoading = false
                     })
-                },500)
+                }, 500)
             },
             getOrderList() {
                 post('/v1/api/admin/getCourseOrderList', this.queryInfo).then(res => {
