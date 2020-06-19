@@ -4,9 +4,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://81.68.73.137:3306/learning_education?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://127.0.0.1:3306/learning_education?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     username: root
-    password: xybc1122
+    password: root
   freemarker:
     template-loader-path: classpath:/templates
     cache: false
