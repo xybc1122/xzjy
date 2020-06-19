@@ -22,7 +22,6 @@ public class AdminCourseController {
 
     @RequestMapping("/course")
     public String course() {
-
         return "course";
     }
 
@@ -50,7 +49,6 @@ public class AdminCourseController {
     @PostMapping("/v1/api/admin/editCourse")
     @ResponseBody
     public HttpResult editCourse(@RequestBody Info info) {
-
         return courseService.webEditCourseService(info);
     }
 }

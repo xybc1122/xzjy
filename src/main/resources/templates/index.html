@@ -7,6 +7,7 @@
     <link href="css/index.css" rel="stylesheet"/>
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
+    <script src="js/request.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/base64.js"></script>
 
@@ -136,15 +137,11 @@
                         this.$message.error("密码不一致");
                         return
                     }
-                    axios.get('/v1/api/admin/editAdminPwd', {
-                        params: {
-                            pwd: Base64.encode(this.editForm.adminPwd)
-                        }
+                    get('/v1/api/admin/editAdminPwd', {pwd: Base64.encode(this.editForm.adminPwd)
                     }).then(res => {
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.editDialogPwdVisible = false
@@ -156,7 +153,7 @@
                             });
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
                     }).catch(err => {
 
                     })

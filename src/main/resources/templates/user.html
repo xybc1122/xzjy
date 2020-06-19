@@ -6,6 +6,7 @@
     <link href="vue/index.css" rel="stylesheet" type="text/css"/>
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
+    <script src="js/request.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/base64.js"></script>
 </head>
@@ -222,21 +223,16 @@
                         type: 'warning'
                     }
                 ).then(() => {
-                    axios.get('/v1/api/admin/resetPwd', {
-                        params: {
-                            studentId: Base64.encode(student_id)
-                        }
-                    }).then(res => {
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                    get('/v1/api/admin/resetPwd', {studentId: Base64.encode(student_id)}).then(res => {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.getUserList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
 
                     }).catch(err => {
                     })
@@ -253,21 +249,18 @@
                         type: 'warning'
                     }
                 ).then(() => {
-                    axios.get('/v1/api/admin/removeUser', {
-                        params: {
-                            studentId: Base64.encode(student_id)
-                        }
+                   get('/v1/api/admin/removeUser', {
+                       studentId: Base64.encode(student_id)
                     }).then(res => {
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.getUserList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
 
                     }).catch(err => {
                     })
@@ -276,10 +269,9 @@
             },
             //获得年级列表
             gradeList() {
-                axios.get('/v1/api/grade/gradeList').then(res => {
-                    const {data: obj} = res
-                    if (obj.code === 200) {
-                        this.grades = obj.data
+                get('/v1/api/grade/gradeList').then(res => {
+                    if (res.code === 200) {
+                        this.grades = res.data
                     }
                 }).catch(err => {
                 })
@@ -303,11 +295,10 @@
                         userName: userName, password: base64Pwd,
                         name: formUser.name, gradeId: formUser.gradeId, phone: formUser.mobile
                     }
-                    axios.post('/v1/api/admin/addUser', addUser).then(res => {
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                    post('/v1/api/admin/addUser', addUser).then(res => {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.addDialogVisible = false
@@ -315,7 +306,7 @@
                             this.getUserList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
 
                     }).catch(err => {
 
@@ -333,11 +324,10 @@
             editUserInfo() {
                 this.$refs.editFormRef.validate(valid => {
                     if (!valid) return
-                    axios.post('/v1/api/admin/editUser', this.editForm).then(res => {
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                    post('/v1/api/admin/editUser', this.editForm).then(res => {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.editDialogVisible = false
@@ -345,7 +335,7 @@
                             this.getUserList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
 
                     }).catch(err => {
 
@@ -358,11 +348,10 @@
                 this.$refs.editFormRef.resetFields()
             },
             getUserList() {
-                axios.post('/v1/api/admin/getUserList', this.queryInfo).then(res => {
-                    const {data: obj} = res
-                    if (obj.code === 200) {
-                        this.userList = obj.data.records
-                        this.total = obj.data.total
+               post('/v1/api/admin/getUserList', this.queryInfo).then(res => {
+                    if (res.code === 200) {
+                        this.userList = res.data.records
+                        this.total = res.data.total
                     }
                 }).catch(err => {
                 })
@@ -378,8 +367,6 @@
                 this.getUserList()
             }
         }
-
-
     })
 
 

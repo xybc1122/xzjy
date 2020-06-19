@@ -7,6 +7,7 @@
     <link href="css/login.css" rel="stylesheet"/>
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
+    <script src="js/request.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/base64.js"></script>
 </head>
@@ -69,14 +70,13 @@
                         let userName = this.loginForm.username;
                         let base64Pwd = Base64.encode(this.loginForm.password)
                         const user = {userName: userName, password: base64Pwd}
-                        axios.post('/v1/api/admin/axiosLogin', user)
+                        post('/v1/api/admin/axiosLogin', user)
                             .then(res => {
-                                const {data: obj} = res
-                                if (obj.code === 200) {
+                                if (res.code === 200) {
                                     window.location.href = "/admin"
                                     return
                                 }
-                                this.$message.error(obj.message);
+                                this.$message.error(res.message);
                                 this.loginLoading = false
                             })
                             .catch(error => {

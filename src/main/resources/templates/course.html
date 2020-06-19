@@ -7,6 +7,7 @@
     <link href="css/course.css" rel="stylesheet"/>
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
+    <script src="js/request.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
@@ -382,10 +383,9 @@
             },
             //获得年级列表
             gradeList() {
-                axios.get('/v1/api/grade/gradeList').then(res => {
-                    const {data: obj} = res
-                    if (obj.code === 200) {
-                        this.grades = obj.data
+               get('/v1/api/grade/gradeList').then(res => {
+                    if (res.code === 200) {
+                        this.grades = res.data
                     }
                 }).catch(err => {
                 })
@@ -397,11 +397,10 @@
             editCourseInfo(){
                 this.$refs.editFormRef.validate(valid => {
                         if (!valid) return
-                    axios.post('/v1/api/admin/editCourse',this.editForm).then(res=>{
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                   post('/v1/api/admin/editCourse',this.editForm).then(res=>{
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.editDialogVisible = false
@@ -409,7 +408,7 @@
                             this.getCourseList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
                     })
 
                 })
@@ -438,21 +437,17 @@
                         type: 'warning'
                     }
                 ).then(()=>{
-                    axios.get('/v1/api/admin/removeCourse',{
-                        params: {
-                            courseId: course_id
-                        }
+                    get('/v1/api/admin/removeCourse',{courseId: course_id
                     }).then(res=>{
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.getCourseList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
 
                     }).catch(err=>{
 
@@ -469,11 +464,10 @@
             addCourse() {
                 this.$refs.addFormRef.validate(valid => {
                     if (!valid) return
-                    axios.post('/v1/api/admin/addCourse',this.addForm).then(res=>{
-                        const {data: obj} = res
-                        if (obj.code === 200) {
+                    post('/v1/api/admin/addCourse',this.addForm).then(res=>{
+                        if (res.code === 200) {
                             this.$message({
-                                message: obj.message,
+                                message: res.message,
                                 type: 'success'
                             });
                             this.addCourseDialogVisible = false
@@ -481,16 +475,15 @@
                             this.getCourseList()
                             return
                         }
-                        this.$message.error(obj.message);
+                        this.$message.error(res.message);
                     })
                 })
             },
             getCourseList() {
-                axios.post('/v1/api/admin/getCourseList', this.queryInfo).then(res => {
-                    const {data: obj} = res
-                    if (obj.code === 200) {
-                        this.courseList = obj.data.records
-                        this.total = obj.data.total
+                post('/v1/api/admin/getCourseList', this.queryInfo).then(res => {
+                    if (res.code === 200) {
+                        this.courseList = res.data.records
+                        this.total = res.data.total
                     }
                 }).catch(err => {
                 })

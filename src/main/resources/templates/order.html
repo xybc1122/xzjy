@@ -6,6 +6,7 @@
     <link href="vue/index.css" rel="stylesheet" type="text/css"/>
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
+    <script src="js/request.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
@@ -58,8 +59,8 @@
             <el-col :span="2" style="margin-top: 10px">
                 <el-button type="primary" @click="getOrderList">查询</el-button>
             </el-col>
-            <el-col :span="2"  style="margin-top: 10px">
-                <el-button type="primary" @click="exportList">导出</el-button>
+            <el-col :span="2" style="margin-top: 10px">
+                <el-button type="primary" @click="exportList" :loading="excelLoading">导出</el-button>
             </el-col>
         </el-row>
 
@@ -70,7 +71,7 @@
             <el-table-column label="课程图片" prop="courseUrl" width="200px">
                 <!--&lt;!&ndash;加入下面的内容,scope.row代表这一行,img是显示这一行的哪个字段,我的是img,你的自己看下&ndash;&gt;-->
                 <template slot-scope="scope">
-                    <img :src="scope.row.courseUrl" alt="" style="width: 180px;height: 100px">
+                    <img :src="scope.row.courseUrl" alt="" style="width: 175px;height: 100px">
                 </template>
             </el-table-column>
             <el-table-column label="学生姓名" prop="studentName" width="150px"></el-table-column>
@@ -91,10 +92,14 @@
     </el-card>
 </div>
 </body>
-<script>
+
+<script type="module">
+    import {fileDownload} from '../js/js-file-download.js'
+
     new Vue({
         el: '#order',
         data: {
+            excelLoading: false,
             orderList: [],
             queryInfo: {
                 orderNumber: '',
@@ -119,25 +124,32 @@
 
         },
         created() {
-            const start= new Date()
+            const start = new Date()
             start.setDate(1)
-            this.queryInfo.queryTime.push(start,new Date())
+            this.queryInfo.queryTime.push(start, new Date())
             this.getOrderList()
         },
         methods: {
-            exportList(){
-
+            exportList() {
+                this.excelLoading = true
+                setTimeout(()=>{
+                    exportExcel('/v1/api/admin/downloadOrderExcel', 'POST', this.queryInfo).then(res => {
+                        fileDownload(res, '订单明细.xlsx')
+                        this.excelLoading = false
+                    }).catch(err => {
+                        this.$message.error("下载异常");
+                        this.excelLoading = false
+                    })
+                },500)
             },
             getOrderList() {
-                console.log(this.queryInfo)
-                axios.post('/v1/api/admin/getCourseOrderList', this.queryInfo).then(res => {
-                    const {data: obj} = res
-                    if (obj.code === 200) {
-                        this.orderList = obj.data.records
-                        this.total = obj.data.total
+                post('/v1/api/admin/getCourseOrderList', this.queryInfo).then(res => {
+                    if (res.code === 200) {
+                        this.orderList = res.data.records
+                        this.total = res.data.total
                         return
                     }
-                    this.$message.error(obj.message);
+                    this.$message.error(res.message);
                 }).catch(err => {
 
                 })

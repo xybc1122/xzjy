@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.education.project.base.BaseEntity;
