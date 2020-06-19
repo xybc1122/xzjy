@@ -65,6 +65,12 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
     public HttpResult wxAddCourseOrderService(String courseId, String studentId, String openId) {
         try {
             lock.lock();
+            QueryWrapper<CourseOrder> coQuery = new QueryWrapper<>();
+            coQuery.eq("course_id",courseId).eq("student_id",studentId).eq("is_del",1).last("LIMIT 1");
+            CourseOrder co = getOne(coQuery);
+            if (co != null) {
+                return HttpResult.fail("您已经报名此班级课程,请去我的订单查看");
+            }
             Info courseInfo = infoCourseService.getById(courseId);
             if (courseInfo.getCourseStock() <= 0) {
                 return HttpResult.fail("班级人数已满");
