@@ -74,7 +74,7 @@
             <el-form-item label="班级标题" prop="courseTitle">
                 <el-input v-model="addForm.courseTitle"></el-input>
             </el-form-item>
-            <el-form-item label="图片地址">
+            <el-form-item label="图片地址" prop="courseUrl">
                 <el-input v-model="addForm.courseUrl"
                           type="textarea"
                           placeholder="请输入图片链接"
@@ -157,7 +157,7 @@
             <el-form-item label="班级标题" prop="courseTitle">
                 <el-input v-model="editForm.courseTitle"></el-input>
             </el-form-item>
-                <el-form-item label="图片地址">
+                <el-form-item label="图片地址" prop="courseUrl">
                     <el-input v-model="editForm.courseUrl"
                               type="textarea"
                               placeholder="请输入图片链接"
@@ -223,6 +223,15 @@
             return cb()
         }
         cb(new Error('请输入合法的金额'))
+    }
+    const checkUrl=(rule, value, cb) => {
+        // 验证？号
+        const reg =/^[^\%\'\"\?]*$/
+
+        if (reg.test(value)) {
+            return cb()
+        }
+        cb(new Error('图片链接不能输入?号或者%'))
     }
     new Vue({
         el: '#course',
@@ -305,6 +314,9 @@
                 ],
                 gradeId: [
                     {required: true, message: '请选择年级', trigger: 'blur'},
+                ],
+                courseUrl:[
+                    {validator: checkUrl, trigger: 'blur'}
                 ]
 
             },
@@ -370,6 +382,9 @@
                 ],
                 coursePrice: [
                     {validator: checkPrice, trigger: 'blur'}
+                ],
+                courseUrl:[
+                    {validator: checkUrl, trigger: 'blur'}
                 ]
 
             }
