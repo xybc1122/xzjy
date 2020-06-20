@@ -66,6 +66,7 @@ public class AdminCourseServiceImpl extends ServiceImpl<InfoMapper, Info> implem
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public HttpResult webEditCourseService(Info info) {
         if (info.getCourseStock().equals(0)) {
             //设置班级已满
