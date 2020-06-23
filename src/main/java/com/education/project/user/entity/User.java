@@ -61,7 +61,8 @@ public class User extends BaseEntity {
     @TableField(exist = false)
     private String token;
 
-
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Integer tenant;
     /**
      * 手机号码
      */

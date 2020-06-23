@@ -45,11 +45,12 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
         if (bo.getQueryTime() == null || bo.getQueryTime().isEmpty()) {
             return HttpResult.fail("请输入查询时间");
         }
-        String start = bo.getQueryTime().get(0);
-        String end = bo.getQueryTime().get(1);
+        String start = bo.getQueryTime().get(0)+" 00:00:00";
+        String end = bo.getQueryTime().get(1)+" 23:59:59";
         query.like(StringUtils.isNotEmpty(bo.getOrderNumber()),
                 "order_number", bo.getOrderNumber())
-                .between("create_time", start, end)
+                .ge("create_time", start)
+                .le("create_time", end)
                 .like(StringUtils.isNotEmpty(bo.getStudentName()),
                         "student_name", bo.getStudentName())
                 .like(StringUtils.isNotEmpty(bo.getTitle()),

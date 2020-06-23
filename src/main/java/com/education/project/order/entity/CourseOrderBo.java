@@ -1,10 +1,8 @@
 package com.education.project.order.entity;
 
-
 import java.util.List;
 
 public class CourseOrderBo extends CourseOrder {
-
 
     private List<String> queryTime;
 

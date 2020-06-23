@@ -4,6 +4,7 @@ package com.education.project.order.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.base.HttpResult;
 import com.education.project.order.entity.CourseOrder;
+import com.education.project.order.entity.CourseOrderVo;
 import com.education.project.order.service.impl.CourseOrderServiceImpl;
 import com.education.project.utils.RequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * <p>
@@ -55,4 +57,10 @@ public class CourseOrderController {
         return courseOrderService.delOrder(orderNumber);
     }
 
+
+    @GetMapping("orderCreateTime")
+    public HttpResult<CourseOrderVo> getOneOrderInfo(HttpServletRequest request, @RequestParam("orderNumber") String orderNumber) {
+        String studentId = RequestUtils.getStudentId(request);
+        return courseOrderService.orderCreateTimeService(orderNumber, studentId);
+    }
 }

@@ -103,4 +103,11 @@ public class Info extends BaseEntity implements Serializable {
     @TableField(exist = false)
     private Integer gradeId;
 
+    public Info() {
+    }
+
+    public Info(String courseId, Integer courseStock) {
+        this.courseId = courseId;
+        this.courseStock = courseStock;
+    }
 }

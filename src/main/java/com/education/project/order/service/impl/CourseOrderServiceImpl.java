@@ -1,6 +1,7 @@
 package com.education.project.order.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.base.HttpResult;
@@ -8,6 +9,7 @@ import com.education.project.course.entity.Info;
 import com.education.project.course.service.IInfoService;
 import com.education.project.exception.LsException;
 import com.education.project.order.entity.CourseOrder;
+import com.education.project.order.entity.CourseOrderVo;
 import com.education.project.order.mapper.CourseOrderMapper;
 import com.education.project.order.service.ICourseOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -29,13 +32,16 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Service
 public class CourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, CourseOrder> implements ICourseOrderService {
+    private final CourseOrderMapper orderMapper;
+
     private Lock lock = new ReentrantLock();
 
     private final IInfoService iInfoService;
 
     @Autowired
-    public CourseOrderServiceImpl(IInfoService iInfoService) {
+    public CourseOrderServiceImpl(IInfoService iInfoService, CourseOrderMapper orderMapper) {
         this.iInfoService = iInfoService;
+        this.orderMapper = orderMapper;
     }
 
     @Override
@@ -90,5 +96,24 @@ public class CourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, Cours
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public HttpResult<CourseOrderVo> orderCreateTimeService(String orderNumber, String studentId) {
+        QueryWrapper<CourseOrder> query = new QueryWrapper<>();
+        query.eq("order_number", orderNumber).eq("student_id", studentId);
+        CourseOrderVo coVo = new CourseOrderVo();
+        coVo.setCreateTime(getOne(query).getCreateTime());
+        return HttpResult.success(coVo);
+    }
+
+    @Override
+    public List<CourseOrder> notPayOrderListService() {
+        return orderMapper.notPayOrderList();
+    }
+
+    @Override
+    public int updateOrderNotPayService() {
+        return orderMapper.updateOrderNotPay();
     }
 }

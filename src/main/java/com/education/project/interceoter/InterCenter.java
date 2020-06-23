@@ -22,7 +22,7 @@ public class InterCenter implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (request.getRequestURI().equals("/v1/api/admin/logout")) {
-            CookieUtil.remove(request,response,"token");
+            CookieUtil.remove(request, response, "token");
             response.sendRedirect("/login");
             return false;
         }
@@ -37,6 +37,13 @@ public class InterCenter implements HandlerInterceptor {
         }
         if (StringUtils.isNotBlank(token)) {
             JwtUtils.setJwtUser(request, token);
+            if (request.getRequestURI().contains("/v1/api/admin")) {
+                Integer tenant = (Integer) request.getAttribute("tenant");
+                if (tenant == null || tenant == 0) {
+                    sendJsonMessage(response, HttpResult.fail("您没权限请求"));
+                    return false;
+                }
+            }
             return true;
         }
         if (request.getRequestURI().equals("/admin")) {
@@ -47,7 +54,7 @@ public class InterCenter implements HandlerInterceptor {
         return false;
     }
 
-    public void sendJsonMessage(HttpServletResponse response, Object obj) {
+    private void sendJsonMessage(HttpServletResponse response, Object obj) {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer;
         try {

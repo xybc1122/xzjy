@@ -40,6 +40,7 @@ public class JwtUtils {
         /*设置头部信息 Header*/
         return JWT.create().withHeader(map)
                 .withClaim("studentId", user.getStudentId())
+                .withClaim("tenant", user.getTenant())
                 .withIssuer(SERVICE)//签名是有谁生成 例如 服务器
                 .withSubject(SUBJECT)//签名的主题
                 .withIssuedAt(nowDate) //生成签名的时间
@@ -61,7 +62,9 @@ public class JwtUtils {
     public static void setJwtUser(HttpServletRequest request, String token) {
         DecodedJWT decodedJWT = checkJWT(token);
         String studentId = decodedJWT.getClaim("studentId").asString();
+        Integer tenant = decodedJWT.getClaim("tenant").asInt();
         request.setAttribute("studentId", studentId);
+        request.setAttribute("tenant", tenant);
     }
 
 }

@@ -272,7 +272,9 @@
                 get('/v1/api/grade/gradeList').then(res => {
                     if (res.code === 200) {
                         this.grades = res.data
+                        return
                     }
+                    this.$message.error(res.message);
                 }).catch(err => {
                 })
             },
@@ -352,7 +354,9 @@
                     if (res.code === 200) {
                         this.userList = res.data.records
                         this.total = res.data.total
+                        return
                     }
+                   this.$message.error(res.message);
                 }).catch(err => {
                 })
             },

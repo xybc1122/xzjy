@@ -7,6 +7,7 @@
     <script src="vue/vue.js"></script>
     <script src="vue/axios.min.js"></script>
     <script src="js/request.js"></script>
+    <script src="js/moment.js"></script>
     <script src="vue/index.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
@@ -133,7 +134,8 @@
         created() {
             const start = new Date()
             start.setDate(1)
-            this.queryInfo.queryTime.push(start, new Date())
+            this.queryInfo.queryTime.push(moment(start).format('YYYY-MM-DD'),
+                moment(new Date()).format('YYYY-MM-DD'))
             this.getOrderList()
         },
         methods: {
@@ -168,7 +170,12 @@
                 this.excelLoading = true
                 setTimeout(() => {
                     exportExcel('/v1/api/admin/downloadOrderExcel', 'POST', this.queryInfo).then(res => {
-                        fileDownload(res, '订单明细.xlsx')
+                        if(res.code===200){
+                            fileDownload(res, '订单明细.xlsx')
+                            this.excelLoading = false
+                            return
+                        }
+                        this.$message.error(res.message);
                         this.excelLoading = false
                     }).catch(err => {
                         this.$message.error("下载异常");

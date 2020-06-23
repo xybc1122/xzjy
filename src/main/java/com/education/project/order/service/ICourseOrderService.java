@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.education.project.base.HttpResult;
 import com.education.project.order.entity.CourseOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.education.project.order.entity.CourseOrderVo;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * <p>
@@ -27,7 +29,14 @@ public interface ICourseOrderService extends IService<CourseOrder> {
 
     HttpResult<Page<CourseOrder>> getOrderList(String studentId, int isPay, int current, int offset);
 
-    HttpResult  delOrder(String orderNumber);
+    HttpResult delOrder(String orderNumber);
 
 
+    HttpResult<CourseOrderVo> orderCreateTimeService(String orderNumber, String studentId);
+
+
+
+    List<CourseOrder> notPayOrderListService();
+
+    int updateOrderNotPayService();
 }
