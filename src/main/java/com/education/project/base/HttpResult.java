@@ -49,8 +49,13 @@ public class HttpResult<T> implements Serializable {
 
 
     //失败 返回msg
-    public static  <T> HttpResult<T> fail(String msg) {
+    public static <T> HttpResult<T> fail(String msg) {
         return new HttpResult(-1, false, msg);
+    }
+
+    //失败 返回msg
+    public static <T> HttpResult<T> fail(BaseEnum baseEnum) {
+        return new HttpResult(-1, false, baseEnum);
     }
 
     private HttpResult(T data, BaseEnum baseEnum, boolean isSuccess) {
@@ -84,6 +89,12 @@ public class HttpResult<T> implements Serializable {
         this.code = StatusCode.SUCCESS.getCode();
         this.message = StatusCode.SUCCESS.getMessage();
         this.success = true;
+    }
+
+    private HttpResult(int code, boolean isSuccess, BaseEnum baseEnum) {
+        this.code = code;
+        this.success = isSuccess;
+        this.message = baseEnum.getMessage();
     }
 
     private HttpResult(int code, boolean isSuccess, String msg) {

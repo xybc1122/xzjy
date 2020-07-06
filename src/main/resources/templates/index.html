@@ -19,8 +19,9 @@
         <div style="margin: 10px">
             <span>学之教育后台管理系统</span>
         </div>
-        <el-button type="primary" @click="editDialogPwdVisible= true">修改密码</el-button>
-        <el-button type="info" @click="logout">退出</el-button>
+        <el-button type="primary" @click="editDialogPwdVisible= true" size="mini">修改密码</el-button>
+        <el-button type="primary" @click="IFRClick" size="mini">报名须知</el-button>
+        <el-button type="info" @click="logout" size="mini">退出</el-button>
     </el-header>
     <!-- 页面主体区域 -->
     <el-container>
@@ -65,6 +66,18 @@
       </span>
         </el-dialog>
 
+        <el-dialog title="修改报名须知" :visible.sync="editDialogIFRVisible" width="50%" @close="editDialogClosed">
+            <el-input
+                    type="textarea"
+                    :rows="20"
+                    placeholder="请输入内容"
+                    v-model="textContent">
+            </el-input>
+            <el-button @click="editDialogIFRVisible = false">取 消</el-button>
+            <el-button type="primary" @click="editIFRContent">确 定</el-button>
+            </span>
+        </el-dialog>
+
     </el-container>
 </el-container>
 </body>
@@ -72,6 +85,7 @@
     new Vue({
         el: "#index",
         data: {
+            textContent: '',
             // 左侧菜单数据
             menuList: [],
             // 是否折叠
@@ -102,7 +116,8 @@
                     }
                 ]
             },
-            editDialogPwdVisible: false
+            editDialogPwdVisible: false,
+            editDialogIFRVisible: false
         },
         created() {
             const height = document.documentElement.clientHeight;
@@ -126,6 +141,25 @@
             ]
         },
         methods: {
+            IFRClick() {
+                this.editDialogIFRVisible = true
+                get('/v1/api/text/getTextContent').then(res => {
+                    this.textContent = res.data
+                })
+            },
+            editIFRContent() {
+                post('/v1/api/text/editTextContent', {textContent: this.textContent}).then(res => {
+                    if (res.code === -1) {
+                        this.$message.error(res.message);
+                        return
+                    }
+                    this.$message({
+                        message: res.message,
+                        type: 'success'
+                    });
+                    this.editDialogIFRVisible = false
+                })
+            },
             // 监听修改用户对话框的关闭事件
             editDialogClosed() {
                 this.$refs.editFormRef.resetFields()
@@ -137,7 +171,8 @@
                         this.$message.error("密码不一致");
                         return
                     }
-                    get('/v1/api/admin/editAdminPwd', {pwd: Base64.encode(this.editForm.adminPwd)
+                    get('/v1/api/admin/editAdminPwd', {
+                        pwd: Base64.encode(this.editForm.adminPwd)
                     }).then(res => {
                         if (res.code === 200) {
                             this.$message({
