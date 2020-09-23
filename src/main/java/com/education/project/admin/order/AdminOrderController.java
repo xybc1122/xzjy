@@ -42,13 +42,6 @@ public class AdminOrderController {
     }
 
 
-    @GetMapping("/v1/api/addCourseOrder")
-    @ResponseBody
-    public HttpResult addCourseOrder(HttpServletRequest request,
-                                     @RequestParam("courseId") String courseId, @RequestParam("openId") String openId) {
-        return courseOrderService.wxAddCourseOrderService(courseId, RequestUtils.getStudentId(request), openId);
-    }
-
     @GetMapping("/v1/api/admin/removeCourseOrder")
     @ResponseBody
     public HttpResult removeCourseOrder(@RequestParam("orderNumber") String orderNumber) {

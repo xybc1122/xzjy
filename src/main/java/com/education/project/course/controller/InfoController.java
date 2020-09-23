@@ -41,4 +41,13 @@ public class InfoController {
         User user = userService.getUserInfo(studentId);
         return infoService.getCourseList(user.getGradeId(), current, offset);
     }
+
+
+    @GetMapping("notCourseIdList")
+    public HttpResult<Page<Info>> notCourseIdList(@RequestParam(value = "current", defaultValue = "1") Integer current,
+                                       @RequestParam(value = "offset", defaultValue = "10") Integer offset, HttpServletRequest request) {
+        String studentId = RequestUtils.getStudentId(request);
+        User user = userService.getUserInfo(studentId);
+        return infoService.getNotCourseIdList(studentId,user.getGradeId(), current, offset);
+    }
 }

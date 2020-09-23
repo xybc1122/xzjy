@@ -27,6 +27,8 @@ public class CourseOrder extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+
+
     /**
      * 订单编号
      */
@@ -84,5 +86,9 @@ public class CourseOrder extends BaseEntity implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @TableField("is_del")
     private Integer stateDel;
+
+
+    @TableField(exist = false)
+    private String ip;
 
 }

@@ -22,7 +22,7 @@ public class AdminLoginController {
         this.adminUserService = adminUserService;
     }
 
-    @RequestMapping("/login")
+    @RequestMapping("/so777")
     public String index() {
 
         return "login";

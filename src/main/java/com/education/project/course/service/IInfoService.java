@@ -19,5 +19,6 @@ public interface IInfoService extends IService<Info> {
     HttpResult<Page<Info>> getCourseList(Integer gradeId,Integer current,Integer offset);
 
 
+    HttpResult<Page<Info>> getNotCourseIdList(String studentId,Integer gradeId,Integer current,Integer offset);
 
 }

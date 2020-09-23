@@ -6,7 +6,7 @@ import com.education.project.base.HttpResult;
 import com.education.project.order.entity.CourseOrder;
 import com.education.project.order.entity.CourseOrderBo;
 
-public interface AdminCourseOrderService  extends IService<CourseOrder> {
+public interface AdminCourseOrderService extends IService<CourseOrder> {
 
 
     /**
@@ -17,15 +17,6 @@ public interface AdminCourseOrderService  extends IService<CourseOrder> {
      */
     HttpResult<Page<CourseOrder>> webGetCourseOrderListService(CourseOrderBo bo);
 
-
-
-    /**
-     * 订单明细列表
-     *
-     * @param courseId
-     * @return HttpResult
-     */
-    HttpResult wxAddCourseOrderService(String courseId,String studentId,String openId);
 
 
     HttpResult webRemoveCourseOrderService(String orderNumber);

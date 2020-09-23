@@ -28,15 +28,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, CourseOrder>
         implements AdminCourseOrderService {
     private final IInfoService infoCourseService;
-    private final UserService userService;
-    private final IInfoService iInfoService;
-    private Lock lock = new ReentrantLock();
 
     @Autowired
-    public AdminCourseOrderServiceImpl(IInfoService infoCourseService, UserService userService, IInfoService iInfoService) {
+    public AdminCourseOrderServiceImpl(IInfoService infoCourseService) {
         this.infoCourseService = infoCourseService;
-        this.userService = userService;
-        this.iInfoService = iInfoService;
     }
 
     @Override
@@ -63,56 +58,6 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public HttpResult wxAddCourseOrderService(String courseId, String studentId, String openId) {
-        try {
-            lock.lock();
-            QueryWrapper<CourseOrder> coQuery = new QueryWrapper<>();
-            coQuery.eq("course_id",courseId).eq("student_id",studentId).eq("is_del",1).last("LIMIT 1");
-            CourseOrder co = getOne(coQuery);
-            if (co != null) {
-                return HttpResult.fail("您已经报名此班级课程,请去我的订单查看");
-            }
-            Info courseInfo = infoCourseService.getById(courseId);
-            if (courseInfo.getCourseStock() <= 0) {
-                return HttpResult.fail("班级人数已满");
-            }
-            User userInfo = userService.getUserInfo(studentId);
-            CourseOrder courseOrder = new CourseOrderBo();
-            courseOrder.setStudentName(userInfo.getName());
-            courseOrder.setCourseId(courseId);
-            courseOrder.setOpenId(openId);
-            courseOrder.setStudentId(studentId);
-            courseOrder.setStatePay(0);
-            courseOrder.setOrderNumber(RecordNoUtils.getInstance().getOrderNumber());
-            courseOrder.setCreateTime(new Date());
-            courseOrder.setPrice(courseInfo.getCoursePrice());
-            courseOrder.setTitle(courseInfo.getCourseTitle());
-            courseOrder.setCourseUrl(courseInfo.getCourseUrl());
-            if (!save(courseOrder)) {
-                return HttpResult.fail("报名失败");
-            }
-            UpdateWrapper<Info> updateInfo = new UpdateWrapper<>();
-            int stock = courseInfo.getCourseStock() - 1;
-            updateInfo.eq("course_id", courseId).set("course_stock", stock);
-            if (!infoCourseService.update(updateInfo)) {
-                throw new LsException("报名失败");
-            }
-            //说明已经没有库存了
-            if (stock == 0) {
-                UpdateWrapper<Info> update = new UpdateWrapper<>();
-                update.eq("course_id", courseId).set("course_full", 1);
-                if (!infoCourseService.update(update)) {
-                    throw new LsException("报名失败");
-                }
-            }
-            return HttpResult.success("报名成功");
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
     public HttpResult webRemoveCourseOrderService(String orderNumber) {
         //获得订单信息
         CourseOrder order = getById(orderNumber);
@@ -120,14 +65,14 @@ public class AdminCourseOrderServiceImpl extends ServiceImpl<CourseOrderMapper, 
             return HttpResult.fail("删除失败");
         }
         //获得班级信息
-        Info info = iInfoService.getById(order.getCourseId());
+        Info info = infoCourseService.getById(order.getCourseId());
         UpdateWrapper<Info> updateInfo = new UpdateWrapper<>();
         updateInfo.eq("course_id", order.getCourseId()).set("course_stock", info.getCourseStock() + 1);
         //如果这个课程已经满了 变成未满状态
         if (info.getCourseFull() == 1) {
             updateInfo.set("course_full", 0);
         }
-        if (!iInfoService.update(updateInfo)) {
+        if (!infoCourseService.update(updateInfo)) {
             throw new LsException("删除失败");
         }
         return HttpResult.success("删除成功");

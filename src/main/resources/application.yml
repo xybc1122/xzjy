@@ -1,12 +1,17 @@
 server:
   port: 8080
+#  ssl:
+#    enabled: true
+#    key-store-password: sx7wy18f4jwnh7
+#    key-store: classpath:www.wzxzjy.com.jks
+#    key-store-type: JKS
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/learning_education?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:mysql://81.68.73.137:3306/learning_education?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password: xybc1122
   freemarker:
     template-loader-path: classpath:/templates
     cache: false
@@ -16,3 +21,22 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+
+
+
+#微信开放平台配置
+wxopen:
+  appid: 025575eac69a2d5b
+
+#支付配置
+#微信商户平台
+wxpay:
+  mer_id: 1503809911
+  key: xxxxx
+  callback: wwww.wzxzjy.com/v1/api/order/course-order/order/callback
+
+condition:
+  http2https: true
+http:
+  port: 80
